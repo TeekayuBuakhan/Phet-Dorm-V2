@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผู้ใช้ในระบบ - หอพักเพชร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-bg': '#F4F5F7',
+                        'sidebar-bg': '#FFFFFF',
+                        'phet-orange': '#D35400',
+                        'btn-green': '#22C55E',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { background-color: #F8F9FB; }
+        
+        /* เพิ่ม transition ให้ดูนุ่มนวลเวลาชี้เมาส์ */
+        .menu-item, .menu-active {
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem; /* กำหนดความโค้งมนให้เมนูทั้งหมด */
+        }
+
+        /* สถานะ Hover: เมื่อเอาเมาส์ไปชี้ (พื้นหลังสีส้มอ่อน ตัวหนังสือและไอคอนสีส้มเข้ม) */
+        .menu-item:hover {
+            background-color: rgba(211, 84, 0, 0.12); /* สีส้มอ่อนแบบโปร่งใสอิงจากโค้ดสี #D35400 */
+            color: #D35400 !important;
+            font-weight: 500;
+        }
+        .menu-item:hover svg {
+            color: #D35400 !important;
+        }
+
+        /* สถานะ Active: เมื่อหน้าเว็บนั้นถูกเปิดอยู่ (พื้นหลังสีส้มเข้ม ตัวหนังสือและไอคอนสีขาว) */
+        .menu-active {
+            background-color: #D35400; 
+            color: #FFFFFF !important;
+            font-weight: 500;
+        }
+        .menu-active svg {
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="flex items-center space-x-2 px-2 mb-10">
+                <div class="w-8 h-8 rounded flex items-center justify-center text-phet-orange">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 21V9"/><path d="M18 3l-6 6"/><path d="M6 3l6 6"/></svg>
+                </div>
+                <h1 class="text-xl font-bold tracking-wide text-phet-orange">หอพักเพชร</h1>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-1">
+                <a href="Admin_main.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    <span>หน้าหลัก</span>
+                </a>
+                <a href="Admin_meter.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                    <span>การจดบันทึกมิเตอร์</span>
+                </a>
+                <a href="Admin_bill.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span>การทำบิล</span>
+                </a>
+                <a href="Admin_Room.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    <span>การจัดการห้อง</span>
+                </a>
+                <a href="Admin_Tenant.html" class="menu-active flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <span>ผู้ใช้ในระบบ</span>
+                </a>
+                <a href="Admin_Report.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <span>การแจ้งเรื่อง</span>
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Log out -->
+        <button onclick="window.location.href='../index.html'" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-600 mt-auto w-full text-left">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+            <span>Log out</span>
+        </button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Top Bar -->
+        <header class="flex justify-end items-center px-10 py-6 space-x-4 z-10">
+            <!-- แจ้งเตือน -->
+            <div class="relative">
+                <button id="noti-btn" class="relative p-2.5 bg-white rounded-full shadow-sm hover:shadow transition border border-gray-100 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <span class="absolute top-1.5 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <div id="notifPopup" class="hidden absolute right-0 mt-3 w-80 z-50">
+                    <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 relative z-10 overflow-hidden">
+                        <div class="p-4 border-b border-gray-50 text-center font-bold text-gray-700 bg-gray-50/50">การแจ้งเตือน</div>
+                        <div class="flex flex-col overflow-y-auto max-h-[300px] custom-scrollbar">
+                            <a href="Report_Admin.html" class="flex items-start text-left p-4 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+                                <div class="w-2 h-2 mt-1.5 bg-red-500 rounded-full mr-3 shrink-0"></div>
+                                <div class="flex-1">
+                                    <p class="font-bold text-gray-800 text-sm">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                    <div class="flex justify-between items-center mt-1">
+                                        <span class="text-xs text-red-500 font-medium">แจ้งเหตุ</span>
+                                        <span class="text-[10px] text-gray-400">15 ก.พ. 69</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile -->
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center space-x-2 bg-white border border-gray-100 rounded-full px-4 py-2 shadow-sm hover:shadow transition">
+                    <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">ทีฆายุ</span>
+                </button>
+                <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
+                    <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
+                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                            <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
+                        </button>
+                        <div class="h-px bg-gray-100 my-1 mx-2"></div>
+                        <button onclick="window.location.href='../index.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                            <span class="font-medium text-sm">ออกจากระบบ</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="px-10 pb-10 max-w-6xl w-full mx-auto">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">ผู้ใช้ในระบบ</h2>
+                <p class="text-gray-400 font-medium mt-1">รายชื่อผู้ใช้งานทั้งหมดของหอพัก</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 font-medium text-sm">ผู้ใช้ทั้งหมด</p>
+                        <p id="statTotal" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-4 border-b-4 border-b-green-200">
+                    <div class="w-11 h-11 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 font-medium text-sm">มีห้องพัก</p>
+                        <p id="statWithRoom" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-4 border-b-4 border-b-orange-200">
+                    <div class="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center text-phet-orange">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 font-medium text-sm">ยังไม่มีห้อง</p>
+                        <p id="statNoRoom" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex justify-end mb-6">
+                <div class="relative w-full md:w-80">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <input id="searchInput" type="text" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-full focus:ring-phet-orange focus:border-phet-orange block w-full pl-10 p-2.5 shadow-sm outline-none transition" placeholder="ค้นหาชื่อหรือเบอร์โทร">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-center border-collapse">
+                    <thead class="bg-gray-50/50 border-b border-gray-100 text-gray-700 text-sm">
+                        <tr>
+                            <th class="py-4 px-4 font-medium w-14">ลำดับ</th>
+                            <th class="py-4 px-4 font-medium">ชื่อผู้ใช้</th>
+                            <th class="py-4 px-4 font-medium">เบอร์โทร</th>
+                            <th class="py-4 px-4 font-medium">ห้อง</th>
+                            <th class="py-4 px-4 font-medium">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tenantBody" class="text-gray-600 text-sm">
+                        <!-- ถูก Render ผ่าน JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal ย้ายเข้า (ย้ายผู้ที่ไม่มีห้องเข้าไปพัก) -->
+    <div id="moveInModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[24px] shadow-2xl p-8 max-w-sm w-full animate-in zoom-in duration-200">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-btn-green shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5m10 0h-5V4m0 9h5v5M4 20h7m-7-4h7m4-5v6" /></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">ย้ายเข้า</h2>
+                    <p class="text-sm text-gray-400">กรอกเลขห้องสำหรับ <span id="moveInUserName" class="font-medium text-gray-600"></span></p>
+                </div>
+            </div>
+            <input id="moveInRoomNum" placeholder="เลขห้อง" class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 outline-none focus:ring-1 focus:ring-btn-green focus:border-btn-green transition-all text-sm">
+            <div class="flex gap-4 mt-8">
+                <button id="cancelMoveInBtn" class="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition text-sm">ยกเลิก</button>
+                <button id="confirmMoveInBtn" class="flex-1 py-2.5 bg-btn-green hover:bg-emerald-500 text-white font-medium rounded-xl shadow-sm transition text-sm">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ยืนยันย้ายออก -->
+    <div id="moveOutModal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[24px] shadow-2xl p-8 max-w-sm w-full text-center animate-in zoom-in duration-200">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+            </div>
+            <h2 id="moveOutConfirmText" class="text-xl font-bold text-gray-800 leading-snug mb-6"></h2>
+            <div class="flex gap-4 justify-center">
+                <button id="cancelMoveOutBtn" class="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition">ยกเลิก</button>
+                <button id="confirmMoveOutBtn" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium shadow-sm transition">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultUsers = [
+            { username: 'เจษฎา พรมภิบาล', phone: '0660890158' },
+            { username: 'นกกระจอกเทศ มะพร้าวอ่อน', phone: '0822222222' },
+            { username: 'มงคล ไดโนซอซา', phone: '0544321999' },
+            { username: 'สมชาย ใจดี', phone: '0812345678' },
+            { username: 'วีระ แสงทอง', phone: '0891234567' }
+        ];
+
+        const tbody = document.getElementById('tenantBody');
+        let currentRows = [];
+
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify(defaultUsers));
+        }
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users')) || [];
+        }
+
+        function getRoomsData() {
+            return JSON.parse(localStorage.getItem('dormRoomsData')) || [];
+        }
+
+        function normalize(str) {
+            return String(str || '').trim().toLowerCase();
+        }
+
+        function formatPhone(p) {
+            if (!p || p === '-') return '-';
+            const digits = String(p).replace(/\D/g, '');
+            if (digits.length === 10) {
+                return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+            }
+            return p;
+        }
+
+        function buildRows() {
+            const users = getUsers();
+            const rooms = getRoomsData();
+            return users.map(u => {
+                const room = rooms.find(r => normalize(r.tenantName) === normalize(u.username));
+                return { ...u, roomNum: room ? room.roomNum : null };
+            }).sort((a, b) => (b.roomNum ? 1 : 0) - (a.roomNum ? 1 : 0));
+        }
+
+        function renderTable() {
+            currentRows = buildRows();
+            tbody.innerHTML = '';
+
+            const withRoom = currentRows.filter(r => r.roomNum).length;
+            document.getElementById('statTotal').innerText = currentRows.length;
+            document.getElementById('statWithRoom').innerText = withRoom;
+            document.getElementById('statNoRoom').innerText = currentRows.length - withRoom;
+
+            if (currentRows.length === 0) {
+                tbody.innerHTML = `
+                    <tr class="border-b border-gray-50">
+                        <td colspan="5" class="py-10 text-gray-400">ยังไม่มีผู้ใช้ในระบบ</td>
+                    </tr>`;
+                return;
+            }
+
+            currentRows.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
+                const roomHtml = row.roomNum
+                    ? `<span class="inline-block bg-green-100 text-green-700 font-bold rounded-full px-3 py-1 text-xs border border-green-200">${row.roomNum}</span>`
+                    : `<span class="text-gray-400">-</span>`;
+
+                let actionHtml;
+                if (row.roomNum) {
+                    actionHtml = `
+                        <button class="btn-move-out inline-flex items-center gap-1.5 bg-red-50 text-red-500 border border-red-200 hover:bg-red-500 hover:text-white font-medium rounded-xl px-4 py-2 text-xs transition-colors" data-idx="${idx}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                            ย้ายออก
+                        </button>`;
+                } else {
+                    actionHtml = `
+                        <button class="btn-move-in inline-flex items-center gap-1.5 bg-btn-green text-white hover:bg-emerald-500 font-medium rounded-xl px-4 py-2 text-xs transition-colors shadow-sm" data-idx="${idx}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5m10 0h-5V4m0 9h5v5M4 20h7m-7-4h7m4-5v6" /></svg>
+                            ย้ายเข้า
+                        </button>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-4 px-4 text-gray-400">${idx + 1}</td>
+                    <td class="py-4 px-4 font-medium text-gray-800">${row.username}</td>
+                    <td class="py-4 px-4">${formatPhone(row.phone)}</td>
+                    <td class="py-4 px-4">${roomHtml}</td>
+                    <td class="py-4 px-4">${actionHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        renderTable();
+
+        // ---- ย้ายเข้า ----
+        let moveInUser = null;
+        const moveInModal = document.getElementById('moveInModal');
+
+        function openMoveInModal(user) {
+            moveInUser = user;
+            document.getElementById('moveInUserName').innerText = user.username;
+            document.getElementById('moveInRoomNum').value = '';
+            moveInModal.classList.replace('hidden', 'flex');
+        }
+
+        document.getElementById('confirmMoveInBtn').addEventListener('click', () => {
+            if (!moveInUser) return;
+            const roomNum = document.getElementById('moveInRoomNum').value.trim();
+            if (!roomNum) { alert('กรุณากรอกเลขห้อง'); return; }
+
+            const rooms = getRoomsData();
+            const room = rooms.find(r => normalize(r.roomNum) === normalize(roomNum));
+
+            if (!room) {
+                alert('ไม่มีห้องนั้นอยู่');
+                return;
+            }
+
+            const isOccupied = room.tenantName && room.tenantName.trim() !== '' && room.tenantName !== '-';
+            if (isOccupied) {
+                alert(`ห้อง ${room.roomNum} มีผู้พักอาศัยอยู่แล้ว`);
+                return;
+            }
+
+            room.tenantName = moveInUser.username;
+            room.phone = moveInUser.phone || '-';
+            localStorage.setItem('dormRoomsData', JSON.stringify(rooms));
+
+            moveInModal.classList.replace('flex', 'hidden');
+            moveInUser = null;
+            renderTable();
+        });
+
+        document.getElementById('cancelMoveInBtn').addEventListener('click', () => {
+            moveInModal.classList.replace('flex', 'hidden');
+            moveInUser = null;
+        });
+
+        moveInModal.addEventListener('click', e => {
+            if (e.target === moveInModal) {
+                moveInModal.classList.replace('flex', 'hidden');
+                moveInUser = null;
+            }
+        });
+
+        document.getElementById('moveInRoomNum').addEventListener('keydown', e => {
+            if (e.key === 'Enter') document.getElementById('confirmMoveInBtn').click();
+        });
+
+        // ---- ย้ายออก ----
+        let moveOutUser = null;
+        let moveOutRoomNum = null;
+        const moveOutModal = document.getElementById('moveOutModal');
+
+        function openMoveOutModal(user, roomNum) {
+            moveOutUser = user;
+            moveOutRoomNum = roomNum;
+            document.getElementById('moveOutConfirmText').innerText = `ยืนยันที่จะย้าย ${user.username} ออกจากห้อง ${roomNum} หรือไม่?`;
+            moveOutModal.classList.replace('hidden', 'flex');
+        }
+
+        document.getElementById('confirmMoveOutBtn').addEventListener('click', () => {
+            if (!moveOutUser || !moveOutRoomNum) return;
+
+            const rooms = getRoomsData();
+            const room = rooms.find(r => r.roomNum === moveOutRoomNum);
+            if (room) {
+                room.tenantName = '-';
+                room.phone = '-';
+                localStorage.setItem('dormRoomsData', JSON.stringify(rooms));
+            }
+
+            moveOutModal.classList.replace('flex', 'hidden');
+            moveOutUser = null;
+            moveOutRoomNum = null;
+            renderTable();
+        });
+
+        document.getElementById('cancelMoveOutBtn').addEventListener('click', () => {
+            moveOutModal.classList.replace('flex', 'hidden');
+            moveOutUser = null;
+            moveOutRoomNum = null;
+        });
+
+        moveOutModal.addEventListener('click', e => {
+            if (e.target === moveOutModal) {
+                moveOutModal.classList.replace('flex', 'hidden');
+                moveOutUser = null;
+                moveOutRoomNum = null;
+            }
+        });
+
+        // ---- Event delegation สำหรับปุ่มในตาราง ----
+        tbody.addEventListener('click', e => {
+            const moveInBtn = e.target.closest('.btn-move-in');
+            if (moveInBtn) {
+                const row = currentRows[parseInt(moveInBtn.getAttribute('data-idx'))];
+                if (row) openMoveInModal(row);
+                return;
+            }
+            const moveOutBtn = e.target.closest('.btn-move-out');
+            if (moveOutBtn) {
+                const row = currentRows[parseInt(moveOutBtn.getAttribute('data-idx'))];
+                if (row) openMoveOutModal(row, row.roomNum);
+            }
+        });
+
+        // ---- ค้นหา ----
+        document.getElementById("searchInput").addEventListener("keyup", function() {
+            const input = this.value.trim().toLowerCase();
+            const rows = tbody.getElementsByTagName("tr");
+
+            for (let i = 0; i < rows.length; i++) {
+                const text = rows[i].textContent || rows[i].innerText;
+                rows[i].style.display = text.toLowerCase().indexOf(input) > -1 ? "" : "none";
+            }
+        });
+
+        // ---- Dropdowns Top Nav ----
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        const notiBtn = document.getElementById('noti-btn');
+        const notiDropdown = document.getElementById('notifPopup');
+
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+            if (notiDropdown) notiDropdown.classList.add('hidden');
+        });
+
+        notiBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notiDropdown.classList.toggle('hidden');
+            if (profileDropdown) profileDropdown.classList.add('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && !profileDropdown.classList.contains('hidden') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
+            }
+            if (notiDropdown && !notiDropdown.classList.contains('hidden') && !notiBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
+                notiDropdown.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
