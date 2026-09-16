@@ -5,18 +5,17 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>ผู้เช่า - พัสดุ</title>
    <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Prompt', 'sans-serif'] },
                     colors: {
-                        'phet-blue': '#B3D8E8',
-                        'phet-bg': '#FEFCE8',
+                        'phet-bg': '#F4F5F7',
+                        'sidebar-bg': '#FFFFFF',
                         'phet-orange': '#D35400',
-                        'btn-orange': '#FF6530',
-                        'btn-green': '#1ABC9C',
-                        'btn-yellow': '#FEE101',
+                        'btn-green': '#22C55E',
                     },
                 },
             },
@@ -24,7 +23,7 @@
     </script>
     <style>
         .tab-active {
-            background-color: #FEFCE8; 
+            background-color: #FFFFFF; 
             border-radius: 16px 16px 0 0; 
             text-shadow: 0px 2px 4px rgba(0,0,0,0.15); 
             box-shadow: 0 -4px 10px -4px rgba(0,0,0,0.05); 
@@ -33,7 +32,7 @@
             position: absolute;
             bottom: 0;
             height: 40px; 
-            background-color: #FEFCE8; 
+            background-color: #FFFFFF; 
             border-radius: 16px 16px 0 0; 
             box-shadow: 0 -4px 10px -4px rgba(0,0,0,0.05); 
             z-index: 10;
@@ -64,7 +63,7 @@
 </head>
 <body class="bg-phet-bg min-h-screen text-gray-800">
 
-    <header class="bg-phet-blue flex justify-between items-center px-8 h-16 shadow-md relative z-30">
+    <header class="bg-white border-b border-gray-200 flex justify-between items-center px-8 h-16 shadow-md relative z-30">
     <div class="w-1/3 flex justify-start">
         <button onclick="window.location.href='Main_Tenant.html'" ...>
 
@@ -89,11 +88,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
             </button>
             <div id="noti-dropdown" class="hidden absolute -right-6 mt-3 w-80 z-50">
-                    <div class="absolute -top-2 right-[34px] w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
-                    <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-xl relative z-10">
+                    <div class="absolute -top-2 right-[34px] w-5 h-5 bg-[#F3F4F6] transform rotate-45 rounded-sm"></div>
+                    <div class="bg-[#F3F4F6] rounded-[24px] p-2.5 shadow-xl relative z-10">
                         <div class="bg-white rounded-[16px] flex flex-col overflow-hidden">
                             <div class="p-4 border-b text-center font-bold text-gray-700">แจ้งเตือน</div>
-                            <button class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b last:border-0 transition-colors">
+                            <button class="flex items-stretch text-left hover:bg-[#F5F5F5] p-4 group border-b last:border-0 transition-colors">
                                 <div class="w-2 bg-phet-orange mr-3"></div>
                                 <div>
                                     <p class="font-medium group-hover:text-phet-orange transition-colors">จอมมารตาก</p>
@@ -111,18 +110,18 @@
                 <span class="text-sm font-medium">เจษฎา</span>
             </button>
             <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-72 z-50">
-                <div class="absolute -top-2 right-8 w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
-                <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.15)] relative z-10">
+                <div class="absolute -top-2 right-8 w-5 h-5 bg-[#F3F4F6] transform rotate-45 rounded-sm"></div>
+                <div class="bg-[#F3F4F6] rounded-[24px] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.15)] relative z-10">
                     <div class="bg-white rounded-[16px] flex flex-col px-1 py-1">
-                        <button onclick="window.location.href='Profile.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                        <button onclick="window.location.href='Profile.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#F5F5F5] rounded-xl transition-colors group">
                             <div class="flex items-center space-x-3 text-phet-orange">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                                 <span class="font-medium text-[16px]">แก้ไขข้อมูลส่วนตัว</span>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
                         </button>
-                        <div class="h-[1px] bg-[#FCD8C4] mx-4 my-0.5 opacity-60"></div>
-                        <button onclick="window.location.href='../index.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                        <div class="h-[1px] bg-[#E5E7EB] mx-4 my-0.5 opacity-60"></div>
+                        <button onclick="window.location.href='../index.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#F5F5F5] rounded-xl transition-colors group">
                             <div class="flex items-center space-x-3 text-phet-orange">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
                                 <span class="font-medium text-[16px]">ออกจากระบบ</span>
@@ -234,7 +233,7 @@
             tr.className = 'border-b border-gray-50 hover:bg-orange-50/50 transition-colors';
             
             const actionHTML = parcel.status === 'pending' 
-                ? `<button onclick="updateParcelStatus(${parcel.id})" class="bg-btn-orange hover:scale-105 transition-transform text-white px-8 py-2 rounded-full text-lg shadow-md">รับทราบ</button>`
+                ? `<button onclick="updateParcelStatus(${parcel.id})" class="bg-phet-orange hover:scale-105 transition-transform text-white px-8 py-2 rounded-full text-lg shadow-md">รับทราบ</button>`
                 : `<span class="text-btn-green font-medium">รับทราบแล้ว</span>`;
 
             tr.innerHTML = `

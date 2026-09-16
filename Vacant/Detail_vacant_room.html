@@ -5,32 +5,31 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>เจ้าของหอ-การจดบันทึกมิเตอร์</title>
    <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
    <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Prompt', 'sans-serif'] },
                     colors: {
-                        'phet-blue': '#B3D8E8',
-                        'phet-bg': '#FEFCE8',
+                        'phet-bg': '#F4F5F7',
+                        'sidebar-bg': '#FFFFFF',
                         'phet-orange': '#D35400',
-                        'btn-orange': '#FF6530',
-                        'btn-green': '#1ABC9C',
-                        'btn-yellow': '#FEE101',
+                        'btn-green': '#22C55E',
                     },
                 },
             },
         }
     </script>
 </head>
-<body class="bg-[#F2A97E] min-h-screen flex flex-col">
+<body class="bg-[#F8F9FB] min-h-screen flex flex-col">
     <div id="imagePreviewModal" class="hidden fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 cursor-pointer transition-opacity">
         <div class="relative max-w-5xl max-h-full flex flex-col items-center">
             <img id="previewImage" src="" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain">
         </div>
     </div>
  
-    <header class="bg-[#B3D8E8] px-6 py-3 flex items-center justify-between shadow-sm">
+    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
         <div class="flex items-center space-x-3">
             <img src="../img/petch.logo.png" class="w-12 h-12">
             <div class="w-[4px] h-12 bg-[#D35400]"></div>
@@ -39,10 +38,10 @@
             </h1>
         </div>
         <div class="flex space-x-4">
-            <button onclick="gotoPage('vacant_room.html')" class="bg-[#FEFCE8] border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
+            <button onclick="gotoPage('vacant_room.html')" class="bg-white border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
                 ห้องที่ว่าง
             </button>
-            <button onclick="openModal()" class="bg-[#FEFCE8] border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
+            <button onclick="openModal()" class="bg-white border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
                 นัดจอง
             </button>
         </div>

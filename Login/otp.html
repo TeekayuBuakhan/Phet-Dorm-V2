@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ยืนยัน OTP - หอพักเพชร</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-bg': '#F4F5F7',
+                        'sidebar-bg': '#FFFFFF',
+                        'phet-orange': '#D35400',
+                        'btn-green': '#22C55E',
+                    },
+                },
+            },
+        }
+    </script>
     <style>
+        body { background-color: #F8F9FB; }
+
         /* ตกแต่ง Input ให้ดูสวยงามเมื่อ Focus */
         .otp-input:focus {
             border-color: #D35400;
@@ -13,9 +31,9 @@
         }
     </style>
 </head>
-<body class="bg-[#FEFCE8] min-h-screen flex flex-col font-sans">
+<body class="bg-[#F8F9FB] min-h-screen flex flex-col font-sans">
 
-    <header class="bg-[#B3D8E8] px-6 py-3 flex items-center justify-between shadow-sm">
+    <header class="bg-white px-6 py-3 flex items-center justify-between shadow-sm border-b border-gray-200">
         <div class="flex items-center space-x-3">
             <img src="../img/petch.logo.png" alt="หอพักเพชร" class="w-12 h-12">
             <div class="w-[4px] h-12 bg-[#D35400]"></div> 
@@ -24,7 +42,7 @@
     </header>
 
     <main class="flex-1 flex items-center justify-center px-6 py-10">
-        <div class="bg-white p-8 rounded-[32px] shadow-2xl w-full max-w-md border-2 border-[#A5D8F3] text-center relative">
+        <div class="bg-white p-8 rounded-[32px] shadow-2xl w-full max-w-md border-2 border-gray-200 text-center relative">
             
             <button onclick="window.history.back()" 
                     class="absolute top-6 right-6 text-gray-400 hover:text-[#D35400] transition-all transform hover:scale-110 active:scale-95" 
@@ -34,7 +52,7 @@
                 </svg>
             </button>
 
-            <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4 mt-4">ยืนยันรหัส OTP</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 mt-4">ยืนยันรหัส OTP</h2>
             <p class="text-gray-500 mb-6 text-sm">กรุณากรอกรหัส 6 หลักที่ส่งไปยังเบอร์มือถือของคุณ</p>
 
             <div id="otp-container" class="flex justify-between gap-2 mb-8">
@@ -51,7 +69,7 @@
             </button>
 
             <p class="text-gray-400 text-sm">
-                ไม่ได้รับรหัส? <button class="text-[#1E3A8A] font-bold hover:underline">ส่งอีกครั้ง</button>
+                ไม่ได้รับรหัส? <button class="text-phet-orange font-bold hover:underline">ส่งอีกครั้ง</button>
             </p>
         </div>
     </main>
