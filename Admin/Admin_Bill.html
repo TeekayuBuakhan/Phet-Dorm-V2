@@ -158,25 +158,49 @@
             <!-- Action Bar -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div class="flex space-x-3">
-                    <div class="relative bg-white border border-gray-300 rounded-xl flex items-center cursor-pointer shadow-sm">
-                        <select id="monthSelect" class="appearance-none outline-none bg-transparent text-gray-700 font-medium px-4 py-2 pr-10 w-full cursor-pointer rounded-xl">
-                            <option value="เมษายน">เดือน เมษายน</option>
+                    <div class="relative">
+                        <select id="monthSelect" class="hidden">
+                            <option value="เมษายน" selected>เดือน เมษายน</option>
                             <option value="มีนาคม">เดือน มีนาคม</option>
                         </select>
-                        <div class="pointer-events-none absolute right-3 text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        <button type="button" onclick="toggleSelMenu('monthMenu')" class="flex items-center gap-2 pl-3.5 pr-3 py-2.5 w-44 bg-white border-2 border-gray-100 rounded-full shadow-sm hover:shadow-md hover:border-phet-orange focus:outline-none focus:border-phet-orange focus:ring-2 focus:ring-phet-orange/20 transition-all cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span id="monthLabel" class="flex-1 text-left text-sm font-medium text-gray-700">เดือน เมษายน</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <div id="monthMenu" class="sel-menu hidden absolute top-full left-0 mt-2 w-44 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 space-y-1 z-30">
+                            <button type="button" data-value="เมษายน" onclick="setSelValue('month','เมษายน')" class="sel-option flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-phet-orange/10 hover:text-phet-orange transition-colors text-left cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="sel-check h-4 w-4 mr-2 text-phet-orange hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                เดือน เมษายน
+                            </button>
+                            <button type="button" data-value="มีนาคม" onclick="setSelValue('month','มีนาคม')" class="sel-option flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-phet-orange/10 hover:text-phet-orange transition-colors text-left cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="sel-check h-4 w-4 mr-2 text-phet-orange hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                เดือน มีนาคม
+                            </button>
                         </div>
                     </div>
-                    <div class="relative bg-white border border-gray-300 rounded-xl flex items-center cursor-pointer shadow-sm">
-                        <select id="yearSelect" class="appearance-none outline-none bg-transparent text-gray-700 font-medium px-4 py-2 pr-10 w-full cursor-pointer rounded-xl">
-                            <option value="2569">2569</option>
+                    <div class="relative">
+                        <select id="yearSelect" class="hidden">
+                            <option value="2569" selected>2569</option>
                             <option value="2568">2568</option>
                         </select>
-                        <div class="pointer-events-none absolute right-3 text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        <button type="button" onclick="toggleSelMenu('yearMenu')" class="flex items-center gap-2 pl-3.5 pr-3 py-2.5 w-32 bg-white border-2 border-gray-100 rounded-full shadow-sm hover:shadow-md hover:border-phet-orange focus:outline-none focus:border-phet-orange focus:ring-2 focus:ring-phet-orange/20 transition-all cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                            <span id="yearLabel" class="flex-1 text-left text-sm font-medium text-gray-700">2569</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        <div id="yearMenu" class="sel-menu hidden absolute top-full left-0 mt-2 w-32 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 space-y-1 z-30">
+                            <button type="button" data-value="2569" onclick="setSelValue('year','2569')" class="sel-option flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-phet-orange/10 hover:text-phet-orange transition-colors text-left cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="sel-check h-4 w-4 mr-2 text-phet-orange hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                2569
+                            </button>
+                            <button type="button" data-value="2568" onclick="setSelValue('year','2568')" class="sel-option flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-phet-orange/10 hover:text-phet-orange transition-colors text-left cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="sel-check h-4 w-4 mr-2 text-phet-orange hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                                2568
+                            </button>
                         </div>
                     </div>
-                    <button onclick="loadDataByMonth()" class="bg-phet-orange text-white px-6 py-2 rounded-xl font-medium hover:bg-orange-600 transition shadow-sm">
+                    <button onclick="loadDataByMonth()" class="bg-phet-orange text-white px-6 py-2.5 rounded-full font-medium hover:bg-orange-600 hover:shadow-md transition shadow-sm">
                         เลือก
                     </button>
                 </div>
@@ -564,6 +588,39 @@
                 loadDataByMonth();
             }
         }
+
+        // Dropdown เดือน/ปี (Custom)
+        function toggleSelMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            const isHidden = menu.classList.contains('hidden');
+            document.querySelectorAll('.sel-menu').forEach(m => m.classList.add('hidden'));
+            if (isHidden) menu.classList.remove('hidden');
+        }
+
+        function setSelValue(type, value) {
+            const sel = document.getElementById(type === 'month' ? 'monthSelect' : 'yearSelect');
+            const opt = Array.from(sel.options).find(o => o.value === value);
+            if (!opt) return;
+            sel.value = value;
+            document.getElementById(type + 'Label').innerText = opt.text;
+            const menu = document.getElementById(type + 'Menu');
+            menu.querySelectorAll('.sel-option').forEach(btn => {
+                const selected = btn.dataset.value === value;
+                btn.classList.toggle('bg-phet-orange/10', selected);
+                btn.classList.toggle('text-phet-orange', selected);
+                btn.querySelector('.sel-check').classList.toggle('hidden', !selected);
+            });
+            menu.classList.add('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('.sel-menu').forEach(m => m.classList.add('hidden'));
+            }
+        });
+
+        setSelValue('month', 'เมษายน');
+        setSelValue('year', '2569');
     </script>
 </body>
 </html>
