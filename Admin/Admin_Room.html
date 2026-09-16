@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>การจัดการห้อง - หอพักเพชร</title>
+    <title>หน้าหลัก - หอพักเพชร</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -12,10 +12,10 @@
                 extend: {
                     fontFamily: { sans: ['Prompt', 'sans-serif'] },
                     colors: {
-                        'phet-bg': '#F4F5F7',
+                        'phet-bg': '#F3F4F6',
                         'sidebar-bg': '#FFFFFF',
                         'phet-orange': '#D35400',
-                        'btn-green': '#22C55E',
+                        'btn-green': '#34D399', 
                     },
                 },
             },
@@ -23,25 +23,24 @@
     </script>
     <style>
         body { background-color: #F8F9FB; }
-        .menu-item {
+        
+        /* เพิ่ม transition ให้ดูนุ่มนวลเวลาชี้เมาส์ */
+        .menu-item, .menu-active {
             transition: all 0.2s ease-in-out;
-            border-left: 4px solid transparent;
         }
-        .menu-item:hover {
-            background-color: #FFF3EB;
-            color: #D35400;
-        }
-        .menu-active {
-            background-color: #FFF3EB;
-            color: #D35400;
-            border-left: 4px solid #D35400;
+
+        /* เปลี่ยนพื้นหลังเป็นสีส้มของธีม และตัวหนังสือเป็นสีขาว */
+        .menu-item:hover, .menu-active {
+            background-color: #D35400; 
+            color: #FFFFFF !important;
+            border-radius: 0.5rem;
             font-weight: 500;
-            border-radius: 0 0.5rem 0.5rem 0;
-            margin-right: 1rem;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 10px; }
+
+        /* บังคับให้ไอคอน (SVG) เป็นสีขาวด้วยเมื่อถูก hover หรือ active */
+        .menu-item:hover svg, .menu-active svg {
+            color: #FFFFFF !important;
+        }
     </style>
 </head>
 <body class="text-gray-800 font-sans flex h-screen overflow-hidden">
@@ -51,10 +50,10 @@
         <div>
             <!-- Logo -->
             <div class="flex items-center space-x-2 px-2 mb-10">
-                <div class="w-8 h-8 rounded flex items-center justify-center">
+                <div class="w-8 h-8 rounded flex items-center justify-center text-phet-orange">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 21V9"/><path d="M18 3l-6 6"/><path d="M6 3l6 6"/></svg>
                 </div>
-                <h1 class="text-xl font-bold tracking-wide">หอพักเพชร</h1>
+                <h1 class="text-xl font-bold tracking-wide text-phet-orange">หอพักเพชร</h1>
             </div>
 
             <!-- Navigation -->
@@ -71,7 +70,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     <span>การทำบิล</span>
                 </a>
-                <!-- แก้ไขบรรทัดนี้ให้ตรงกับเมนูอื่น -->
                 <a href="Admin_Room.html" class="menu-item flex items-center space-x-3 px-4 py-3 text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                     <span>การจัดการห้อง</span>
