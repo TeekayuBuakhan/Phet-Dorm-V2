@@ -99,19 +99,55 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col overflow-y-auto">
-        <!-- Top Bar -->
-        <header class="flex justify-end items-center px-10 py-6 space-x-4">
-            <button class="relative p-2 bg-white rounded-full shadow-sm hover:shadow-md transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-            </button>
+        <header class="flex justify-end items-center px-10 py-6 space-x-4 z-10">
+            <!-- แจ้งเตือน -->
             <div class="relative">
-                <!-- ใส่ Profile Image -->
-                <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="Profile" class="w-10 h-10 rounded-full object-cover shadow-sm border border-gray-200 cursor-pointer">
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                <button id="noti-btn" class="relative p-2.5 bg-white rounded-full shadow-sm hover:shadow transition border border-gray-100 text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <span class="absolute top-1.5 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <div id="notifPopup" class="hidden absolute right-0 mt-3 w-80 z-50">
+                    <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 relative z-10 overflow-hidden">
+                        <div class="p-4 border-b border-gray-50 text-center font-bold text-gray-700 bg-gray-50/50">การแจ้งเตือน</div>
+                        <div class="flex flex-col overflow-y-auto max-h-[300px] custom-scrollbar">
+                            <a href="Report_Admin.html" class="flex items-start text-left p-4 hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+                                <div class="w-2 h-2 mt-1.5 bg-red-500 rounded-full mr-3 shrink-0"></div>
+                                <div class="flex-1">
+                                    <p class="font-bold text-gray-800 text-sm">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                    <div class="flex justify-between items-center mt-1">
+                                        <span class="text-xs text-red-500 font-medium">แจ้งเหตุ</span>
+                                        <span class="text-[10px] text-gray-400">15 ก.พ. 69</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile -->
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center space-x-2 bg-white border border-gray-100 rounded-full px-4 py-2 shadow-sm hover:shadow transition">
+                    <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">ทีฆายุ</span>
+                </button>
+                <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
+                    <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
+                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                            <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
+                        </button>
+                        <div class="h-px bg-gray-100 my-1 mx-2"></div>
+                        <button onclick="window.location.href='../index.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                            <span class="font-medium text-sm">ออกจากระบบ</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
-
         <div class="px-10 pb-10 max-w-6xl">
             <!-- Header Title -->
             <div class="mb-8">
@@ -142,19 +178,7 @@
                         <p class="text-3xl font-bold">0/3</p>
                     </div>
                 </div>
-
-                <!-- Card 3 -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center space-x-6 border-b-4 border-b-yellow-200">
-                    <div class="w-14 h-14 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                    </div>
-                    <div>
-                        <p class="text-gray-600 font-medium text-lg">พัสดุที่ยังไม่มีคนมารับ</p>
-                        <p class="text-3xl font-bold">0</p>
-                    </div>
-                </div>
             </div>
-
             <!-- Notifications Section -->
             <div>
                 <div class="flex justify-between items-center mb-6">
@@ -286,5 +310,33 @@
         </div>
     </main>
 
+    <script>
+        // Dropdowns Top Nav
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        const notiBtn = document.getElementById('noti-btn');
+        const notiDropdown = document.getElementById('notifPopup');
+
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+            if (notiDropdown) notiDropdown.classList.add('hidden');
+        });
+
+        notiBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notiDropdown.classList.toggle('hidden');
+            if (profileDropdown) profileDropdown.classList.add('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && !profileDropdown.classList.contains('hidden') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.add('hidden');
+            }
+            if (notiDropdown && !notiDropdown.classList.contains('hidden') && !notiBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
+                notiDropdown.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
