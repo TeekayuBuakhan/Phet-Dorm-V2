@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยืนยัน OTP - หอพักเพชร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ตกแต่ง Input ให้ดูสวยงามเมื่อ Focus */
+        .otp-input:focus {
+            border-color: #D35400;
+            box-shadow: 0 0 10px rgba(211, 84, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-[#FEFCE8] min-h-screen flex flex-col font-sans">
+
+    <header class="bg-[#B3D8E8] px-6 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <img src="../img/petch.logo.png" alt="หอพักเพชร" class="w-12 h-12">
+            <div class="w-[4px] h-12 bg-[#D35400]"></div> 
+            <h1 class="text-3xl font-bold text-gray-800">หอพักเพชร</h1>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center px-6 py-10">
+        <div class="bg-white p-8 rounded-[32px] shadow-2xl w-full max-w-md border-2 border-[#A5D8F3] text-center relative">
+            
+            <button onclick="window.history.back()" 
+                    class="absolute top-6 right-6 text-gray-400 hover:text-[#D35400] transition-all transform hover:scale-110 active:scale-95" 
+                    title="ย้อนกลับ">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                </svg>
+            </button>
+
+            <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4 mt-4">ยืนยันรหัส OTP</h2>
+            <p class="text-gray-500 mb-6 text-sm">กรุณากรอกรหัส 6 หลักที่ส่งไปยังเบอร์มือถือของคุณ</p>
+
+            <div id="otp-container" class="flex justify-between gap-2 mb-8">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
+            </div>
+
+            <button onclick="checkOTP()" class="w-full bg-[#D35400] text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform hover:scale-[1.02] active:scale-95 mb-6">
+                ยืนยันรหัส
+            </button>
+
+            <p class="text-gray-400 text-sm">
+                ไม่ได้รับรหัส? <button class="text-[#1E3A8A] font-bold hover:underline">ส่งอีกครั้ง</button>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        const inputs = document.querySelectorAll('.otp-input');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // กรองเอาเฉพาะตัวเลข
+                e.target.value = e.target.value.replace(/\D/g, '');
+                
+                if (e.target.value.length > 0 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        function checkOTP() {
+            let otpValue = "";
+            inputs.forEach(input => otpValue += input.value);
+
+            if (otpValue.length < 6) {
+                alert("กรุณากรอกรหัสให้ครบ 6 หลัก");
+            } else {
+                // ไปหน้าเปลี่ยนรหัสผ่าน
+                window.location.href = 'ResetPassword.html';
+            }
+        }
+    </script>
+</body>
+</html>

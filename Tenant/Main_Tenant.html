@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>ผู้เช่า-หน้าหลัก</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-blue': '#B3D8E8',
+                        'phet-bg': '#FEFCE8',
+                        'phet-orange': '#D35400',
+                        'btn-orange': '#FF6530',
+                        'btn-green': '#1ABC9C',
+                        'btn-yellow': '#FEE101',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .tab-active { background-color: #FEFCE8; border-radius: 16px 16px 0 0; text-shadow: 0px 2px 4px rgba(0,0,0,0.15); box-shadow: 0 -4px 10px -4px rgba(0,0,0,0.05); }
+        #slide-indicator { 
+            position: absolute; bottom: 0; height: 40px; background-color: #FEFCE8; 
+            border-radius: 16px 16px 0 0; box-shadow: 0 -4px 10px -4px rgba(0,0,0,0.05); 
+            z-index: 10; opacity: 0; pointer-events: none; 
+            will-change: transform, width, opacity; transform-origin: left center;
+        }
+        .text-active { font-weight: bold !important; color: #D35400 !important; text-shadow: 0px 2px 4px rgba(0,0,0,0.15) !important; }
+    </style>
+</head>
+<body class="bg-phet-bg min-h-screen text-gray-800">
+
+    <header class="bg-phet-blue flex justify-between items-center px-8 h-16 shadow-md relative z-30">
+    <div class="w-1/3 flex justify-start">
+        <button onclick="window.location.href='Main_Tenant.html'" ...>
+
+        <button onclick="gotoPage('Main_Tenant.html')" class="flex items-center space-x-3 w-fit p-1 rounded-lg transition-all duration-200 focus:outline-none hover:bg-white/20">
+            <img src="../img/petch.logo.png" alt="หอพักเพชร" class="w-8 h-8"> 
+            <div class="w-[3px] h-6 bg-phet-orange"></div> 
+            <h1 class="text-xl font-bold tracking-wide">หอพักเพชร</h1>
+        </button>
+    </div>
+
+    <nav id="main-nav" class="relative flex h-full items-end justify-center space-x-1 w-1/3"> 
+        <div id="slide-indicator"></div>
+        <button data-href="Main_Tenant.html" class="nav-btn px-6 pt-2 pb-2.5 text-[15px] font-medium text-gray-700 hover:text-phet-orange transition relative z-20">หน้าหลัก</button>
+        <button data-href="Bill.html" class="nav-btn px-6 pt-2 pb-2.5 text-[15px] font-medium text-gray-700 hover:text-phet-orange transition relative z-20">ค่าเช่า</button>
+        <button data-href="Parcel.html" class="nav-btn px-6 pt-2 pb-2.5 text-[15px] font-medium text-gray-700 hover:text-phet-orange transition relative z-20">พัสดุ</button>
+        <button data-href="Repair.html" class="nav-btn px-6 pt-2 pb-2.5 text-[15px] font-medium text-gray-700 hover:text-phet-orange transition relative z-20">แจ้งเหตุ</button>
+    </nav>
+
+    <div class="flex items-center justify-end w-1/3 space-x-4">
+        <div class="relative">
+            <button id="noti-btn" class="relative p-2 bg-white border border-gray-200 rounded-full text-gray-500 shadow-sm hover:shadow-md hover:text-phet-orange transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+            </button>
+            <div id="noti-dropdown" class="hidden absolute -right-6 mt-3 w-80 z-50">
+                    <div class="absolute -top-2 right-[34px] w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
+                    <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-xl relative z-10">
+                        <div class="bg-white rounded-[16px] flex flex-col overflow-hidden">
+                            <div class="p-4 border-b text-center font-bold text-gray-700">แจ้งเตือน</div>
+                            <button class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b last:border-0 transition-colors">
+                                <div class="w-2 bg-phet-orange mr-3"></div>
+                                <div>
+                                    <p class="font-medium group-hover:text-phet-orange transition-colors">จอมมารตาก</p>
+                                    <p class="text-xs text-gray-400">2 - พ.ค. - 2569</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <div class="relative">
+            <button id="profile-btn" class="flex items-center space-x-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-gray-600 shadow-sm hover:shadow-md hover:text-phet-orange hover:border-phet-orange transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <span class="text-sm font-medium">เจษฎา</span>
+            </button>
+            <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-72 z-50">
+                <div class="absolute -top-2 right-8 w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
+                <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.15)] relative z-10">
+                    <div class="bg-white rounded-[16px] flex flex-col px-1 py-1">
+                        <button onclick="window.location.href='Profile.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                            <div class="flex items-center space-x-3 text-phet-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                                <span class="font-medium text-[16px]">แก้ไขข้อมูลส่วนตัว</span>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                        </button>
+                        <div class="h-[1px] bg-[#FCD8C4] mx-4 my-0.5 opacity-60"></div>
+                        <button onclick="window.location.href='../index.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                            <div class="flex items-center space-x-3 text-phet-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                                <span class="font-medium text-[16px]">ออกจากระบบ</span>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <main class="max-w-5xl mx-auto px-6 py-12 relative z-0 flex flex-col items-center">
+        <div class="w-full bg-phet-orange rounded-[40px] p-8 md:p-12 text-white shadow-xl flex flex-col md:flex-row justify-between items-center mb-16 relative overflow-hidden">
+            <div class="flex items-start space-x-6 z-10">
+                <div class="mt-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="text-4xl font-bold tracking-tight">ห้อง : <span id="display-room" class="ml-2">-</span></h2>
+                    <p class="text-2xl font-medium opacity-90">ชื่อผู้เช่า : <span id="display-name" class="ml-2">-</span></p>
+                </div>
+            </div>
+
+            <div class="mt-8 md:mt-0 text-right z-10">
+                <p class="text-xl md:text-2xl font-medium mb-4">ยอดเงินรวมที่ต้องชำระ <span id="balance-amount" class="text-3xl font-bold ml-2">2,440</span> บาท</p>
+                <div class="relative inline-block">
+                    <button id="pay-button" onclick="gotoPage('Bill.html')" class="bg-white text-phet-orange px-10 py-3 rounded-2xl text-xl font-bold transition-all shadow-md active:scale-95">
+                        ชำระเงิน
+                    </button>
+                    <div id="pay-badge" class="hidden absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full border-2 border-white shadow-sm"></div>
+                </div>
+            </div>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
+            <button onclick="gotoPage('Bill.html')" class="bg-btn-orange hover:bg-orange-500 text-white h-36 rounded-[32px] flex items-center justify-center text-2xl font-bold shadow-lg transition-transform hover:-translate-y-1 active:scale-95">ค่าเช่า</button>
+            <button onclick="gotoPage('Repair.html')" class="bg-btn-green hover:bg-emerald-500 text-white h-36 rounded-[32px] flex items-center justify-center text-2xl font-bold shadow-lg transition-transform hover:-translate-y-1 active:scale-95">แจ้งเหตุ</button>
+            <button onclick="gotoPage('Parcel.html')" class="bg-btn-yellow hover:bg-yellow-400 text-gray-800 h-36 rounded-[32px] flex items-center justify-center text-2xl font-bold shadow-lg transition-transform hover:-translate-y-1 active:scale-95">พัสดุ</button>
+        </div>
+    </main>
+
+    <script>
+        const initMenus = () => {
+            const btns = { 'noti': 'noti-dropdown', 'profile': 'profile-dropdown' };
+            Object.keys(btns).forEach(key => {
+                const btn = document.getElementById(`${key}-btn`);
+                const menu = document.getElementById(btns[key]);
+                if (btn && menu) {
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        Object.values(btns).forEach(id => {
+                            if(id !== btns[key]) document.getElementById(id).classList.add('hidden');
+                        });
+                        menu.classList.toggle('hidden');
+                    };
+                }
+            });
+            window.onclick = () => {
+                Object.values(btns).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('hidden');
+                });
+            };
+        };
+
+        function checkBalance() {
+            const balanceElement = document.getElementById('balance-amount');
+            const payButton = document.getElementById('pay-button');
+            const payBadge = document.getElementById('pay-badge');
+            const balanceValue = parseFloat(balanceElement.innerText.replace(/,/g, ''));
+
+            if (balanceValue > 0) {
+                payButton.className = "bg-white text-phet-orange px-10 py-3 rounded-2xl text-xl font-bold transition-all shadow-md active:scale-95";
+                payBadge.classList.remove('hidden'); 
+                payButton.innerText = 'ชำระเงิน';
+                payButton.disabled = false;
+            } else {
+                payButton.className = "bg-btn-green text-white px-10 py-3 rounded-2xl text-xl font-bold transition-all shadow-md opacity-90";
+                payBadge.classList.add('hidden'); 
+                payButton.innerText = 'ชำระแล้ว';
+                payButton.disabled = true;
+            }
+        }
+
+        function loadBalance() {
+            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
+            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
+            const roomNum = myRoom ? myRoom.roomNum : null;
+
+            const balanceElement = document.getElementById('balance-amount');
+            if (!roomNum) {
+                balanceElement.innerText = "0";
+                return;
+            }
+
+            let totalOwed = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('bill_')) {
+                    const billData = JSON.parse(localStorage.getItem(key));
+                    if (billData && billData[roomNum] && billData[roomNum].isSent && billData[roomNum].status === "รอชำระเงิน") {
+                        totalOwed += billData[roomNum].total;
+                    }
+                }
+            }
+            balanceElement.innerText = totalOwed.toLocaleString();
+        }
+
+        function gotoPage(page) {
+        const indicator = document.getElementById("slide-indicator");
+        const active = document.querySelector(".text-active"); 
+
+        if (active) {
+            sessionStorage.setItem('navLeft', active.offsetLeft);
+            sessionStorage.setItem('navWidth', active.offsetWidth);
+        }
+        setTimeout(() => { 
+        window.location.href = page; 
+        }, 100); 
+        }
+
+        function gotoPage(page) {
+            const indicator = document.getElementById("slide-indicator");
+            const active = document.querySelector(".text-active");
+            const target = document.querySelector(`.nav-btn[data-href="${page}"]`);
+
+            if (active) {
+                sessionStorage.setItem('navLeft', active.offsetLeft);
+                sessionStorage.setItem('navWidth', active.offsetWidth);
+            }
+
+            if (target && indicator) {
+                indicator.style.transition = "all 0.25s cubic-bezier(0.2, 1, 0.2, 1)";
+                indicator.style.left = target.offsetLeft + "px";
+                indicator.style.width = target.offsetWidth + "px";
+            }
+            setTimeout(() => { window.location.href = page; }, 130);
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            initMenus();
+
+            loadTenantRoom(); // โหลดข้อมูลห้องและชื่อ
+            loadBalance();    // โหลดยอดค้างชำระ
+            checkBalance();
+            if (document.fonts) await document.fonts.ready;
+
+            const navLinks = document.querySelectorAll("#main-nav .nav-btn");
+            const indicator = document.getElementById("slide-indicator");
+            const currentPath = window.location.pathname.split("/").pop() || "Main_Tenant.html";
+            const activeLink = Array.from(navLinks).find(link => 
+                link.getAttribute("data-href").toLowerCase() === currentPath.toLowerCase()
+            ) || navLinks[0];
+
+            const prevLeft = sessionStorage.getItem('navLeft');
+            const prevWidth = sessionStorage.getItem('navWidth');
+
+            indicator.style.transition = "none";
+            indicator.style.left = (prevLeft || activeLink.offsetLeft) + "px";
+            indicator.style.width = (prevWidth || activeLink.offsetWidth) + "px";
+            indicator.style.opacity = "1";
+
+            requestAnimationFrame(() => {
+                const _reflow = indicator.offsetWidth;
+                requestAnimationFrame(() => {
+                    indicator.style.transition = "all 0.4s cubic-bezier(0.2, 1, 0.2, 1)";
+                    indicator.style.left = activeLink.offsetLeft + "px";
+                    indicator.style.width = activeLink.offsetWidth + "px";
+                    setTimeout(() => {
+                        sessionStorage.removeItem('navLeft');
+                        sessionStorage.removeItem('navWidth');
+                    }, 400);
+                });
+            });
+
+            activeLink.classList.add("text-active");
+            activeLink.classList.remove("text-gray-700");
+
+            navLinks.forEach(link => {
+                link.onclick = (e) => { e.preventDefault(); gotoPage(link.getAttribute("data-href")); };
+            });
+        });
+
+        // ฟังก์ชันดึงข้อมูลห้องของผู้เช่าที่ล็อกอิน
+        function loadTenantRoom() {
+            // 1. จำลองว่าผู้ใช้ที่ล็อกอินอยู่คือ "เจษฎา พรมภิบาล" (ในระบบจริงจะดึงจาก Session/Login)
+            const currentUserName = "เจษฎา พรมภิบาล"; 
+            
+            // 2. ไปดึงตารางห้องพักทั้งหมดจากที่ Admin บันทึกไว้
+            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
+            
+            // 3. ค้นหาว่ามีห้องไหนไหมที่ "ชื่อผู้เช่า" ตรงกับคนล็อกอิน
+            // ใช้ .includes("เจษฎา") เพื่อให้ค้นหาเจอแม้ว่าจะพิมพ์แค่ชื่อ
+            const myRoom = roomsData.find(room => room.tenantName.includes("เจษฎา"));
+            
+            // 4. เอาข้อมูลมาแสดงบนหน้าจอ
+            if (myRoom) {
+                document.getElementById('display-room').innerText = myRoom.roomNum;
+                document.getElementById('display-name').innerText = myRoom.tenantName;
+            } else {
+                // กรณีเจษฎายังไม่มีห้อง (โดนลบชื่อออก)
+                document.getElementById('display-room').innerText = "ยังไม่มีห้องพัก";
+                document.getElementById('display-name').innerText = currentUserName;
+                document.getElementById('balance-amount').innerText = "0";
+            }
+        }
+    </script>
+</body>
+</html>

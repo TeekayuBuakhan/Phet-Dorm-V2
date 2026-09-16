@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - หอพักเพชร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E40AF',
+                        'secondary': '#FBBF24',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-[#FEFCE8] min-h-screen flex flex-col">
+
+    <header class="bg-[#B3D8E8] px-6 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <img src="../img/petch.logo.png" alt="หอพักเพชร" class="w-12 h-12">
+            <div class="w-[4px] h-12 bg-[#D35400]"></div> 
+            <h1 class="text-3xl font-bold text-gray-800">หอพักเพชร</h1>
+        </div>
+        <div class="flex space-x-4">
+            <button onclick="gotoPage('Register.html')" class="bg-[#FEFCE8] border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
+                สมัครสมาชิก
+            </button>
+        </div>
+    </header>
+        
+    <main class="flex-1 flex items-center justify-center px-10 py-10">
+        <div class="bg-white p-8 rounded-[32px] shadow-2xl w-full max-w-md border-2 border-[#A5D8F3]">
+            <h2 class="text-4xl font-bold text-center text-[#1E3A8A] mb-8">เข้าสู่ระบบ</h2>
+
+            <form id="loginForm">
+                <div class="relative flex mb-8 bg-white rounded-2xl border-2 border-[#D35400] overflow-hidden">
+                    <div id="role-slider" class="absolute top-0 bottom-0 left-0 w-1/2 bg-[#D35400] transition-transform duration-300 ease-out z-0"></div>
+                    
+                    <button type="button" id="tenantTab" onclick="setRole('tenant')" 
+                        class="relative z-10 flex-1 py-3 text-sm font-bold transition-colors duration-300 text-white">
+                        ผู้เช่า
+                    </button>
+
+                    <button type="button" id="ownerTab" onclick="setRole('owner')" 
+                        class="relative z-10 flex-1 py-3 text-sm font-bold transition-colors duration-300 text-[#D35400]">
+                        เจ้าของหอ
+                    </button> 
+                </div> 
+
+                <div class="mb-5">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">ชื่อผู้ใช้งาน</label>
+                    <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้งาน" required
+                           class="w-full p-4 bg-[#EEF4F8] border-2 border-[#B0D4F0] rounded-2xl focus:bg-white focus:border-[#D35400] outline-none transition duration-200">
+                </div>
+
+                <div class="mb-1">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">รหัสผ่าน</label>
+                    <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required
+                           class="w-full p-4 bg-[#EEF4F8] border-2 border-[#B0D4F0] rounded-2xl focus:bg-white focus:border-[#D35400] outline-none transition duration-200">
+                </div>
+
+                <div class="flex justify-end mb-8">
+                    <a href="ForgotPassword.html" class="text-[12px] font-bold text-gray-400 hover:text-[#D35400] transition-colors pr-1">
+                        ลืมรหัสผ่านใช่หรือไม่?
+                    </a>
+                </div>
+
+                <button type="submit" class="w-full bg-[#D35400] text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform hover:scale-[1.02] active:scale-95">
+                    ตกลง
+                </button>
+            </form>
+        </div>
+    </main>
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    let currentRole = 'tenant';
+
+    const DB_TENANT_USER = 'เจษฎา พรมภิบาล';
+    const DB_TENANT_PASS = 'Jes123456789';
+    const DB_OWNER_USER = 'ทีฆายุ บัวขัน';
+    const DB_OWNER_PASS = 'plueM17122006';
+
+    function gotoPage(page) {
+        window.location.href = page;
+    }
+
+    function setRole(role) {
+        currentRole = role;
+        const tenantTab = document.getElementById('tenantTab');
+        const ownerTab = document.getElementById('ownerTab');
+        const slider = document.getElementById('role-slider');
+
+        if (role === 'tenant') {
+            slider.style.transform = 'translateX(0)';
+            tenantTab.style.color = 'white';
+            ownerTab.style.color = '#D35400';
+        } else {
+            slider.style.transform = 'translateX(100%)';
+            ownerTab.style.color = 'white';
+            tenantTab.style.color = '#D35400';
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault(); 
+
+        const userVal = usernameInput.value;
+        const passVal = passwordInput.value;
+
+        usernameInput.classList.remove('border-red-500', 'focus:ring-red-200');
+        passwordInput.classList.remove('border-red-500', 'focus:ring-red-200');
+        usernameInput.classList.add('border-[#B0D4F0]', 'focus:ring-blue-200');
+        passwordInput.classList.add('border-[#B0D4F0]', 'focus:ring-blue-200');
+
+        let isSuccess = false;
+
+        if (currentRole === 'owner') {
+            if (userVal === DB_OWNER_USER && passVal === DB_OWNER_PASS) {
+                isSuccess = true;
+                window.location.href = '../owner/Main_Admin.html'; 
+            }
+        } else {
+            if (userVal === DB_TENANT_USER && passVal === DB_TENANT_PASS) {
+                isSuccess = true;
+                window.location.href = '../Tenant/Main_Tenant.html';
+            }
+        }
+
+        if (!isSuccess) {
+            alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+            usernameInput.classList.remove('border-[#B0D4F0]', 'focus:ring-blue-200');
+            usernameInput.classList.add('border-red-500', 'focus:ring-red-200');
+            passwordInput.classList.remove('border-[#B0D4F0]', 'focus:ring-blue-200');
+            passwordInput.classList.add('border-red-500', 'focus:ring-red-200');
+        }
+    });
+</script>
+</body>
+</html>
