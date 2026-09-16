@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>เจ้าของหอ-การจดบันทึกมิเตอร์</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-blue': '#B3D8E8',
+                        'phet-bg': '#FEFCE8',
+                        'phet-orange': '#D35400',
+                        'btn-orange': '#FF6530',
+                        'btn-green': '#1ABC9C',
+                        'btn-yellow': '#FEE101',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-yellow-50 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white w-[640px] max-w-[95%] rounded-3xl p-10 shadow-xl">
+    
+    <h1 class="text-center text-5xl font-bold mb-12">
+      ติดต่อ
+    </h1>
+
+    <div class="flex flex-col md:flex-row items-center justify-center gap-5">
+
+      <div>
+        <img src="./img/qr.png" alt="QR Code" class="w-64 h-64 object-contain">
+      </div>
+
+      <div class="text-center">
+        
+        <a href="./img/qr.png" download class="inline-block bg-orange-600 hover:bg-orange-700 text-white text-xl px-10 py-4 rounded-full transition duration-300 mb-8">
+          บันทึก QR code
+        </a>
+
+        <div class="text-2xl mb-3">
+          หรือโทร
+        </div>
+
+        <div class="text-4xl font-bold text-orange-600">
+          066-089-0158
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

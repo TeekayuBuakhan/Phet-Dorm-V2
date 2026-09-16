@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>เจ้าของหอ-การจดบันทึกมิเตอร์</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-blue': '#B3D8E8',
+                        'phet-bg': '#FEFCE8',
+                        'phet-orange': '#D35400',
+                        'btn-orange': '#FF6530',
+                        'btn-green': '#1ABC9C',
+                        'btn-yellow': '#FEE101',
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-[#F2A97E] min-h-screen flex flex-col">
+    <div id="imagePreviewModal" class="hidden fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 cursor-pointer transition-opacity">
+        <div class="relative max-w-5xl max-h-full flex flex-col items-center">
+            <img id="previewImage" src="" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain">
+        </div>
+    </div>
+ 
+    <header class="bg-[#B3D8E8] px-6 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+            <img src="../img/petch.logo.png" class="w-12 h-12">
+            <div class="w-[4px] h-12 bg-[#D35400]"></div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                รายละเอียดห้องที่ว่าง
+            </h1>
+        </div>
+        <div class="flex space-x-4">
+            <button onclick="gotoPage('vacant_room.html')" class="bg-[#FEFCE8] border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
+                ห้องที่ว่าง
+            </button>
+            <button onclick="openModal()" class="bg-[#FEFCE8] border-2 border-[#D35400] text-[#D35400] px-4 py-1.5 rounded-full text-xl font-medium transition transform hover:scale-105 hover:bg-[#D35400] hover:text-white">
+                นัดจอง
+            </button>
+        </div>
+    </header>
+ 
+    <main class="flex-1 container mx-auto px-10 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden w-[360px] mx-auto">
+                <div class="bg-[#D35400] text-white px-6 py-3 text-xl font-semibold">
+                    รูปภาพตัวอย่าง
+                </div>
+                <div id="detailImageContainer" class="p-6 space-y-6 max-h-[520px] overflow-y-auto">
+                    </div>
+            </div>
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden max-w-2xl">
+                <div class="bg-[#D35400] text-white px-8 py-4 text-xl font-semibold">
+                    รายละเอียด
+                </div>
+                <div class="p-8 text-lg space-y-4">
+                    <p id="detailRoomNum"><b>ห้อง :</b> -</p>
+                    <p id="detailRoomType"><b>ประเภท :</b> -</p>
+                    <p id="detailRoomPrice"><b>ค่าห้อง :</b> -</p>
+
+                    <p id="detailElecRate"><b>ค่าไฟ :</b> -</p>
+                    <p id="detailWaterRate"><b>ค่าน้ำ :</b> -</p>
+                    
+                    <div class="pt-6">
+                        <p class="text-red-500 font-semibold mb-2">สิ่งของเพิ่มเติม :</p>
+                        <ol id="detailAdditionalInfo" class="list-decimal pl-6 space-y-1 text-gray-700">
+                            </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+ 
+<script>
+    // โหลดข้อมูลเมื่อเปิดหน้า
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomNum = urlParams.get('room');
+
+        if (!roomNum) {
+            alert("ไม่พบข้อมูลห้อง กรุณาเลือกห้องใหม่");
+            window.location.href = 'vacant_room.html';
+            return;
+        }
+
+        const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
+        const roomInfo = roomsData.find(r => r.roomNum === roomNum);
+
+        if (roomInfo) {
+            // ----- ดึงข้อมูลทั่วไปของห้อง -----
+            document.getElementById('detailRoomNum').innerHTML = `<b>ห้อง :</b> ${roomInfo.roomNum}`;
+            document.getElementById('detailRoomType').innerHTML = `<b>ประเภท :</b> ${roomInfo.roomType || '-'}`;
+            document.getElementById('detailRoomPrice').innerHTML = `<b>ค่าห้อง :</b> ${roomInfo.price || '-'} บาท`;
+            
+            // ----- ดึงข้อมูล ค่าไฟ ค่าน้ำ -----
+            document.getElementById('detailElecRate').innerHTML = `<b>ค่าไฟ :</b> ${roomInfo.elecRate ? roomInfo.elecRate + ' บาท / หน่วย' : '-'}`;
+            document.getElementById('detailWaterRate').innerHTML = `<b>ค่าน้ำ :</b> ${roomInfo.waterRate || '-'}`;
+
+            // ----- ดึงข้อมูล สิ่งของเพิ่มเติม -----
+            const addInfoContainer = document.getElementById('detailAdditionalInfo');
+            if (roomInfo.additionalInfo && roomInfo.additionalInfo.trim() !== '') {
+                // แยกข้อความด้วยการขึ้นบรรทัดใหม่ (Enter) แล้วสร้างเป็น <li>
+                const items = roomInfo.additionalInfo.split('\n').filter(item => item.trim() !== '');
+                addInfoContainer.innerHTML = items.map(item => `<li>${item.trim()}</li>`).join('');
+            } else {
+                // ถ้าไม่ได้กรอกอะไรไว้ ให้ขึ้นว่า ไม่มีข้อมูล
+                addInfoContainer.innerHTML = '<li class="text-gray-400 list-none">- ไม่มีข้อมูล -</li>';
+            }
+
+            // ----- ดึงข้อมูลรูปภาพมาแสดง และเพิ่ม Event Click -----
+            const imageContainer = document.getElementById('detailImageContainer');
+            imageContainer.innerHTML = ''; // เคลียร์รูปเก่าทิ้ง
+
+            if (roomInfo.images && roomInfo.images.length > 0) {
+                roomInfo.images.forEach(imgSrc => {
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.className = "rounded-2xl object-cover w-full h-52 cursor-pointer hover:opacity-90 transition-opacity shadow-md";
+                    img.onclick = () => openImagePreview(imgSrc); 
+                    imageContainer.appendChild(img);
+                });
+            } else {
+                // ถ้าไม่มีรูป ใช้รูปภาพ default
+                const defaultImg = document.createElement('img');
+                defaultImg.src = "../img/home.jpg";
+                defaultImg.className = "rounded-2xl object-cover w-full h-52 cursor-pointer hover:opacity-90 transition-opacity shadow-md";
+                defaultImg.onclick = () => openImagePreview("../img/home.jpg");
+                imageContainer.appendChild(defaultImg);
+            }
+
+        } else {
+            alert("ไม่พบข้อมูลห้องนี้ในระบบ");
+            window.location.href = 'vacant_room.html';
+        }
+    });
+
+    // ----- ฟังก์ชันสำหรับเปิด-ปิดรูปภาพ -----
+    function openImagePreview(src) {
+        document.getElementById('previewImage').src = src;
+        document.getElementById('imagePreviewModal').classList.remove('hidden');
+    }
+
+    // ดักจับการคลิกเพื่อปิดรูปภาพ (คลิกที่พื้นดำ หรือปุ่มกากบาท)
+    document.getElementById('imagePreviewModal').addEventListener('click', function(e) {
+        if (e.target === this || e.target.id === 'closeImageModalBtn' || e.target.id === 'previewImage') {
+            this.classList.add('hidden');
+            document.getElementById('previewImage').src = ''; // เคลียร์ src ทิ้งกันกระตุก
+        }
+    });
+
+    function gotoPage(page){
+        window.location.href = page;
+    }
+ 
+    function openModal(){
+        document.getElementById("contactModal").classList.remove("hidden");
+    }
+ 
+    function closeModal(){
+        document.getElementById("contactModal").classList.add("hidden");
+    }
+</script>
+ 
+    <div id="contactModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 w-[90%] max-w-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl">✕</button>
+            <h2 class="text-3xl font-bold text-center mb-8">ติดต่อ</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-10 w-full">
+                <img src="../img/qr.png" class="w-56 h-56 object-contain md:w-64">
+                <div class="text-center md:text-left space-y-4 flex flex-col items-center md:items-start">
+                    <a href="../img/qr.png" download class="bg-[#D35400] text-white px-6 py-3 rounded-full shadow hover:scale-105 transition inline-block md:mr-6">
+                        ⬇ บันทึก QR code
+                    </a>
+                    <p class="text-gray-500 md:ml-12">หรือโทร</p>
+                    <p class="text-[#D35400] text-xl font-semibold md:ml-2">066-089-0158</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
