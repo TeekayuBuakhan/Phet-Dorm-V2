@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าหลัก - หอพักเพชร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: {
+                        'phet-bg': '#F3F4F6',
+                        'sidebar-bg': '#FFFFFF',
+                        'phet-orange': '#D35400',
+                        'btn-green': '#34D399', 
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { background-color: #F8F9FB; }
+        
+        /* เพิ่ม transition ให้ดูนุ่มนวลเวลาชี้เมาส์ */
+        .menu-item, .menu-active {
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.5rem; /* กำหนดความโค้งมนให้เมนูทั้งหมด */
+        }
+
+        /* สถานะ Hover: เมื่อเอาเมาส์ไปชี้ (พื้นหลังสีส้มอ่อน ตัวหนังสือและไอคอนสีส้มเข้ม) */
+        .menu-item:hover {
+            background-color: rgba(211, 84, 0, 0.12); /* สีส้มอ่อนแบบโปร่งใสอิงจากโค้ดสี #D35400 */
+            color: #D35400 !important;
+            font-weight: 500;
+        }
+        .menu-item:hover svg {
+            color: #D35400 !important;
+        }
+
+        /* สถานะ Active: เมื่อหน้าเว็บนั้นถูกเปิดอยู่ (พื้นหลังสีส้มเข้ม ตัวหนังสือและไอคอนสีขาว) */
+        .menu-active {
+            background-color: #D35400; 
+            color: #FFFFFF !important;
+            font-weight: 500;
+        }
+        .menu-active svg {
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+<body class="bg-[#FEFCE8] min-h-screen">
+   <div class="h-screen flex flex-col bg-[#FDF9EA]">
+       <header class="bg-phet-blue flex justify-between items-center px-8 h-16 shadow-md relative z-30">
+            <div class="w-1/3 flex justify-start">
+                <button onclick="gotoPage('Main_Admin.html')" class="flex items-center space-x-3 w-fit p-1 rounded-lg transition-all duration-200 focus:outline-none hover:bg-white/20">
+                    <img src="../img/petch.logo.png" alt="หอพักเพชร" class="w-8 h-8"> 
+                    <div class="w-[3px] h-6 bg-phet-orange"></div> 
+                    <h1 class="text-xl font-bold tracking-wide">หอพักเพชร</h1>
+                </button>
+            </div>
+            <div class="flex items-center justify-end w-1/3 space-x-4">
+                <div class="relative">
+                    <button id="noti-btn" class="relative p-2 bg-white border border-gray-200 rounded-full text-gray-500 shadow-sm hover:shadow-md hover:text-phet-orange transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    </button>
+                    <!-- Popup แจ้งเตือน -->
+                    <div id="notifPopup" class="hidden absolute right-[-10px] mt-3 w-80 z-50">
+                        <div class="absolute -top-2 right-[22px] w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
+                        <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-xl relative z-10">
+                            <div class="bg-white rounded-[16px] flex flex-col overflow-hidden max-h-[400px]">
+                                <div class="p-4 border-b text-center font-bold text-gray-700 sticky top-0 bg-white z-10 shadow-sm">การแจ้งเตือน</div>
+                                <div class="flex flex-col overflow-y-auto">
+                                    <a href="Report_Admin.html" class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b border-gray-100 last:border-0 transition-colors">
+                                        <div class="w-1.5 bg-[#22c55e] mr-3 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-800 text-sm group-hover:text-[#22c55e] transition-colors">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                            <div class="flex justify-between items-center mt-1">
+                                                <span class="text-[10px] text-gray-400">15 ก.พ. 69</span>
+                                                <span class="text-xs text-red-500 font-bold">แจ้งเหตุ</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="Billing_Admin.html" class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b border-gray-100 last:border-0 transition-colors">
+                                        <div class="w-1.5 bg-orange-500 mr-3 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-800 text-sm group-hover:text-orange-500 transition-colors">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                            <div class="flex justify-between items-center mt-1">
+                                                <span class="text-[10px] text-gray-400">1 ก.พ. 69</span>
+                                                <span class="text-xs text-green-500 font-bold">ส่งสลิปค่าห้อง</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="parcel_Admin.html" class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b border-gray-100 last:border-0 transition-colors">
+                                        <div class="w-1.5 bg-yellow-400 mr-3 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-800 text-sm group-hover:text-yellow-500 transition-colors">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                            <div class="flex justify-between items-center mt-1">
+                                                <span class="text-[10px] text-gray-400">แจ้งพัสดุ</span>
+                                                <span class="text-xs text-green-500 font-bold">รับทราบแล้ว</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="parcel_Admin.html" class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b border-gray-100 last:border-0 transition-colors">
+                                        <div class="w-1.5 bg-yellow-400 mr-3 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-800 text-sm group-hover:text-yellow-500 transition-colors">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                            <div class="flex justify-between items-center mt-1">
+                                                <span class="text-[10px] text-gray-400">แจ้งพัสดุ</span>
+                                                <span class="text-xs text-green-500 font-bold">รับทราบแล้ว</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <a href="parcel_Admin.html" class="flex items-stretch text-left hover:bg-[#FEFCE8] p-4 group border-b border-gray-100 last:border-0 transition-colors">
+                                        <div class="w-1.5 bg-yellow-400 mr-3 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p class="font-bold text-gray-800 text-sm group-hover:text-yellow-500 transition-colors">ห้อง 23A - เจษฎา พรมภิบาล</p>
+                                            <div class="flex justify-between items-center mt-1">
+                                                <span class="text-[10px] text-gray-400">แจ้งพัสดุ</span>
+                                                <span class="text-xs text-green-500 font-bold">รับทราบแล้ว</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center space-x-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 text-gray-600 shadow-sm hover:shadow-md hover:text-phet-orange hover:border-phet-orange transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        <span class="text-sm font-medium">ทีฆายุ</span>
+                    </button>
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-72 z-50">
+                        <div class="absolute -top-2 right-8 w-5 h-5 bg-[#FCD8C4] transform rotate-45 rounded-sm"></div>
+                        <div class="bg-[#FCD8C4] rounded-[24px] p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.15)] relative z-10">
+                            <div class="bg-white rounded-[16px] flex flex-col px-1 py-1">
+                                <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                                    <div class="flex items-center space-x-3 text-phet-orange">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+                                        <span class="font-medium text-[16px]">แก้ไขข้อมูลส่วนตัว</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                                </button>
+                                <div class="h-[1px] bg-[#FCD8C4] mx-4 my-0.5 opacity-60"></div>
+                                <button onclick="window.location.href='../index.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#FEFCE8] rounded-xl transition-colors group">
+                                    <div class="flex items-center space-x-3 text-phet-orange">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                                        <span class="font-medium text-[16px]">ออกจากระบบ</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="flex-1 flex overflow-hidden">
+            <aside class="w-64 bg-[#D4591B] py-6 flex flex-col gap-1 h-full overflow-y-auto relative">
+                
+                <div id="sidebar-indicator" class="absolute left-0 w-1.5 bg-white transition-all duration-300 ease-out rounded-r-full pointer-events-none" style="opacity: 0; top: 0px; height: 0px; z-index: 10;"></div>
+
+                <a href="Main_Admin.html" id="nav-home" class="flex items-center gap-4 px-6 py-3 mx-4 bg-white text-gray-900 rounded-full font-bold shadow-sm transition-all duration-300 hover:shadow-md active:scale-95">
+                    <svg width="24" height="24" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 1.5H3C2.17157 1.5 1.5 2.17157 1.5 3V13.5C1.5 14.3284 2.17157 15 3 15H10.5C11.3284 15 12 14.3284 12 13.5V3C12 2.17157 11.3284 1.5 10.5 1.5Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M27 1.5H19.5C18.6716 1.5 18 2.17157 18 3V7.5C18 8.32843 18.6716 9 19.5 9H27C27.8284 9 28.5 8.32843 28.5 7.5V3C28.5 2.17157 27.8284 1.5 27 1.5Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M27 15H19.5C18.6716 15 18 15.6716 18 16.5V27C18 27.8284 18.6716 28.5 19.5 28.5H27C27.8284 28.5 28.5 27.8284 28.5 27V16.5C28.5 15.6716 27.8284 15 27 15Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10.5 21H3C2.17157 21 1.5 21.6716 1.5 22.5V27C1.5 27.8284 2.17157 28.5 3 28.5H10.5C11.3284 28.5 12 27.8284 12 27V22.5C12 21.6716 11.3284 21 10.5 21Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="text-xl">หน้าหลัก</span>
+                </a>
+
+                <div class="h-px bg-white/10 mx-6 my-4"></div>
+
+                <a href="Meter_Admin.html" class="nav-menu-item group flex items-center gap-4 px-10 py-4 text-white/80 transition-all duration-300 text-sm tracking-wide rounded-2xl hover:bg-white/10 hover:text-white hover:pl-12 active:scale-95">
+                    <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                        <path d="M5 12V12.01M9 12V12.01M13 12V12.01M5 15V15.01M9 15V15.01M13 15V15.01M1 3C1 2.46957 1.21071 1.96086 1.58579 1.58579C1.96086 1.21071 2.46957 1 3 1H15C15.5304 1 16.0391 1.21071 16.4142 1.58579C16.7893 1.96086 17 2.46957 17 3V17C17 17.5304 16.7893 18.0391 16.4142 18.4142C16.0391 18.7893 15.5304 19 15 19H3C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V3ZM5 6C5 5.73478 5.10536 5.48043 5.29289 5.29289C5.48043 5.10536 5.73478 5 6 5H12C12.2652 5 12.5196 5.10536 12.7071 5.29289C12.8946 5.48043 13 5.73478 13 6V7C13 7.26522 12.8946 7.51957 12.7071 7.70711C12.5196 7.89464 12.2652 8 12 8H6C5.73478 8 5.48043 7.89464 5.29289 7.70711C5.10536 7.51957 5 7.26522 5 7V6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>การจดบันทึกมิเตอร์</span>
+                </a>
+
+                <a href="Billing_Admin.html" class="nav-menu-item group flex items-center gap-4 px-10 py-4 text-white/80 transition-all duration-300 text-sm tracking-wide rounded-2xl hover:bg-white/10 hover:text-white hover:pl-12 active:scale-95">
+                    <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                        <path d="M4.84878 3.9921e-05C4.89683 5.9921e-05 4.94559 7.98561e-05 4.99508 7.98561e-05H14.5051C14.5546 7.98561e-05 14.6033 5.9921e-05 14.6514 3.9921e-05C15.6681 -0.000400079 16.3679 -0.000710145 16.9572 0.20435C18.0702 0.59161 18.9343 1.48726 19.3047 2.61559C19.5008 3.21271 19.5005 3.92254 19.5001 4.97655C19.5001 5.02372 19.5001 5.07158 19.5001 5.12014V19.1243C19.5001 20.5895 17.7731 21.4618 16.6357 20.421C16.5562 20.3483 16.444 20.3483 16.3645 20.421L15.8814 20.8631C14.9532 21.7124 13.547 21.7124 12.6188 20.8631C12.2638 20.5382 11.7364 20.5382 11.3814 20.8631C10.4532 21.7124 9.04696 21.7124 8.11876 20.8631C7.76376 20.5382 7.23637 20.5382 6.88138 20.8631C5.95319 21.7124 4.54694 21.7124 3.61875 20.8631L3.13566 20.421C3.05618 20.3483 2.94395 20.3483 2.86448 20.421C1.72705 21.4618 7.28134e-05 20.5895 7.28134e-05 19.1243V5.12014C7.28134e-05 5.07158 5.27591e-05 5.02372 3.27591e-05 4.97655C-0.000347241 3.92255 -0.000607222 3.21271 0.195453 2.61559C0.565913 1.48726 1.43002 0.59161 2.54298 0.20435C3.1323 -0.000710145 3.83203 -0.000400079 4.84878 3.9921e-05ZM4.99508 1.50008C3.774 1.50008 3.3534 1.51057 3.03593 1.62103C2.37655 1.85047 1.84919 2.38728 1.6206 3.0835C1.50951 3.42183 1.50007 3.86796 1.50007 5.12014V19.1243C1.50007 19.2433 1.55999 19.3161 1.63517 19.3509C1.67433 19.369 1.71264 19.3737 1.74455 19.3694C1.77269 19.3656 1.8091 19.3535 1.85185 19.3144C2.50453 18.7171 3.49561 18.7171 4.14828 19.3144L4.63138 19.7565C4.98637 20.0813 5.51377 20.0813 5.86875 19.7565C6.79694 18.9071 8.20316 18.9071 9.13136 19.7565C9.48636 20.0813 10.0138 20.0813 10.3688 19.7565C11.297 18.9071 12.7032 18.9071 13.6314 19.7565C13.9864 20.0813 14.5138 20.0813 14.8688 19.7565L15.3519 19.3144C16.0046 18.7171 16.9956 18.7171 17.6483 19.3144C17.6911 19.3535 17.7275 19.3656 17.7556 19.3694C17.7875 19.3737 17.8258 19.369 17.865 19.3509C17.9402 19.3161 18.0001 19.2434 18.0001 19.1243V5.12014C18.0001 3.86797 17.9907 3.42183 17.8796 3.0835C17.651 2.38728 17.1236 1.85047 16.4642 1.62103C16.1468 1.51057 15.7262 1.50008 14.5051 1.50008H4.99508ZM4.00007 6.25008C4.00007 5.83587 4.33585 5.50008 4.75007 5.50008H5.25007C5.66428 5.50008 6.00007 5.83587 6.00007 6.25008C6.00007 6.6643 5.66428 7.00008 5.25007 7.00008H4.75007C4.33585 7.00008 4.00007 6.6643 4.00007 6.25008ZM7.50007 6.25008C7.50007 5.83587 7.83586 5.50008 8.25006 5.50008H14.7501C15.1643 5.50008 15.5001 5.83587 15.5001 6.25008C15.5001 6.6643 15.1643 7.00008 14.7501 7.00008H8.25006C7.83586 7.00008 7.50007 6.6643 7.50007 6.25008ZM4.00007 9.7501C4.00007 9.3359 4.33585 9.0001 4.75007 9.0001H5.25007C5.66428 9.0001 6.00007 9.3359 6.00007 9.7501C6.00007 10.1643 5.66428 10.5001 5.25007 10.5001H4.75007C4.33585 10.5001 4.00007 10.1643 4.00007 9.7501ZM7.50007 9.7501C7.50007 9.3359 7.83586 9.0001 8.25006 9.0001H14.7501C15.1643 9.0001 15.5001 9.3359 15.5001 9.7501C15.5001 10.1643 15.1643 10.5001 14.7501 10.5001H8.25006C7.83586 10.5001 7.50007 10.1643 7.50007 9.7501ZM4.00007 13.2501C4.00007 12.8359 4.33585 12.5001 4.75007 12.5001H5.25007C5.66428 12.5001 6.00007 12.8359 6.00007 13.2501C6.00007 13.6643 5.66428 14.0001 5.25007 14.0001H4.75007C4.33585 14.0001 4.00007 13.6643 4.00007 13.2501ZM7.50007 13.2501C7.50007 12.8359 7.83586 12.5001 8.25006 12.5001H14.7501C15.1643 12.5001 15.5001 12.8359 15.5001 13.2501C15.5001 13.6643 15.1643 14.0001 14.7501 14.0001H8.25006C7.83586 14.0001 7.50007 13.6643 7.50007 13.2501Z" fill="currentColor"/>
+                    </svg>
+                    <span>การทำบิล</span>
+                </a>
+
+                <a href="Room.html" class="nav-menu-item group flex items-center gap-4 px-10 py-4 text-white/80 transition-all duration-300 text-sm tracking-wide rounded-2xl hover:bg-white/10 hover:text-white hover:pl-12 active:scale-95">
+                    <svg width="18" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                        <path d="M6.8214 0.00311995L6.9218 0.01982L15.4218 2.01982C15.7267 2.09156 15.9511 2.34361 15.993 2.64702L16 2.74988V17.2499C16 17.5631 15.8061 17.8393 15.5203 17.9495L15.4218 17.9799L6.9218 19.9799C6.4846 20.0828 6.0645 19.7822 6.0067 19.3515L6 19.2499V0.74988C6 0.33534 6.3313 0.01368 6.7225 0L6.8214 0.00311995ZM7.5 1.69683V18.3029L14.5 16.6559V3.34389L7.5 1.69683ZM5 1.99988V3.49988H1.5V16.4999H5V17.9999H0.75C0.3703 17.9999 0.0565098 17.7177 0.00684977 17.3517L0 17.2499V2.74988C0 2.37019 0.28215 2.05639 0.64823 2.00673L0.75 1.99988H5ZM10 8.9999C10.5523 8.9999 11 9.4476 11 9.9999C11 10.5522 10.5523 10.9999 10 10.9999C9.4477 10.9999 9 10.5522 9 9.9999C9 9.4476 9.4477 8.9999 10 8.9999Z" fill="currentColor"/>
+                    </svg>
+                    <span>การจัดการห้อง</span>
+                </a>
+
+                <a href="Report_Admin.html" class="nav-menu-item group flex items-center gap-4 px-10 py-4 text-white/80 transition-all duration-300 text-sm tracking-wide rounded-2xl hover:bg-white/10 hover:text-white hover:pl-12 active:scale-95">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                        <path d="M21.9577 9.90627C21.9221 9.35513 21.4465 8.93719 20.8954 8.97278C20.3442 9.00836 19.9263 9.48399 19.9619 10.0351L20.9598 9.9707L21.9577 9.90627ZM20.9598 12.4909L21.9577 12.5554L21.9577 12.5553L20.9598 12.4909ZM13.1706 20.3905L13.1043 19.3927L13.1042 19.3927L13.1706 20.3905ZM8.8294 20.3905L8.89574 19.3927L8.89572 19.3927L8.8294 20.3905ZM7.34401 20.0513L6.96314 20.9759L6.96321 20.976L7.34401 20.0513ZM6.44544 19.7508L6.56744 20.7433L6.56744 20.7433L6.44544 19.7508ZM5.74868 20.1846L5.15523 19.3797L5.15519 19.3798L5.74868 20.1846ZM2.99943 20.9982L3.02377 19.9985H3.02374L2.99943 20.9982ZM1.91484 20.7351L1.05227 21.241L1.05228 21.2411L1.91484 20.7351ZM2.30021 19.4978L1.41579 19.0311L1.41579 19.0311L2.30021 19.4978ZM2.62791 16.6746L3.50326 16.1911C3.4899 16.1669 3.47555 16.1433 3.46023 16.1203L2.62791 16.6746ZM1.04024 12.4909L0.0423191 12.5554L0.0423195 12.5554L1.04024 12.4909ZM1.04024 9.9707L0.0423194 9.90621L0.0423191 9.90621L1.04024 9.9707ZM8.8294 2.07107L8.89572 3.06887L8.89573 3.06887L8.8294 2.07107ZM11.4548 3.03266C12.0065 3.05761 12.474 2.63058 12.499 2.07886C12.5239 1.52714 12.0969 1.05965 11.5452 1.0347L11.5 2.03368L11.4548 3.03266ZM10.9953 10.5C10.443 10.5 9.9953 10.9477 9.9953 11.5C9.9953 12.0523 10.443 12.5 10.9953 12.5V11.5V10.5ZM11.0043 12.5C11.5566 12.5 12.0043 12.0523 12.0043 11.5C12.0043 10.9477 11.5566 10.5 11.0043 10.5V11.5V12.5ZM14.9908 10.5C14.4385 10.5 13.9908 10.9477 13.9908 11.5C13.9908 12.0523 14.4385 12.5 14.9908 12.5V11.5V10.5ZM14.9998 12.5C15.5521 12.5 15.9998 12.0523 15.9998 11.5C15.9998 10.9477 15.5521 10.5 14.9998 10.5V11.5V12.5ZM6.99982 10.5C6.44753 10.5 5.99982 10.9477 5.99982 11.5C5.99982 12.0523 6.44753 12.5 6.99982 12.5V11.5V10.5ZM7.00879 12.5C7.56107 12.5 8.00879 12.0523 8.00879 11.5C8.00879 10.9477 7.56107 10.5 7.00879 10.5V11.5V12.5ZM20.9598 9.9707L19.9619 10.0351C20.0127 10.8224 20.0127 11.6392 19.9619 12.4265L20.9598 12.4909L21.9577 12.5553C22.0141 11.6822 22.0141 10.7794 21.9577 9.90627L20.9598 9.9707ZM20.9598 12.4909L19.9619 12.4264C19.7193 16.1788 16.7757 19.1487 13.1043 19.3927L13.1706 20.3905L13.2369 21.3883C17.9314 21.0763 21.6519 17.2876 21.9577 12.5554L20.9598 12.4909ZM13.1706 20.3905L13.1042 19.3927C11.7214 19.4847 10.2758 19.4845 8.89574 19.3927L8.8294 20.3905L8.76305 21.3883C10.2314 21.4859 11.7656 21.4861 13.2369 21.3883L13.1706 20.3905ZM8.8294 20.3905L8.89572 19.3927C8.50459 19.3667 8.07719 19.2718 7.72481 19.1266L7.34401 20.0513L6.96321 20.976C7.53161 21.21 8.17333 21.3491 8.76307 21.3883L8.8294 20.3905ZM7.34401 20.0513L7.72488 19.1267C7.47983 19.0257 7.25842 18.9342 7.08313 18.8725C6.96123 18.8297 6.65286 18.7178 6.32343 18.7583L6.44544 19.7508L6.56744 20.7433C6.44087 20.7589 6.35638 20.7385 6.35633 20.7385C6.34866 20.7368 6.36487 20.74 6.41975 20.7593C6.53315 20.7992 6.69594 20.8659 6.96314 20.9759L7.34401 20.0513ZM6.44544 19.7508L6.32344 18.7583C6.00978 18.7968 5.76044 18.956 5.64661 19.0297C5.50404 19.122 5.33313 19.2486 5.15523 19.3797L5.74868 20.1846L6.34213 20.9895C6.43792 20.9188 6.51563 20.8616 6.58302 20.813C6.65087 20.7642 6.69841 20.7313 6.73317 20.7088C6.76984 20.6851 6.77509 20.6842 6.75945 20.6915C6.74538 20.6981 6.67584 20.73 6.56744 20.7433L6.44544 19.7508ZM5.74868 20.1846L5.15519 19.3798C4.65774 19.7466 4.03396 20.0231 3.02377 19.9985L2.99943 20.9982L2.97508 21.9979C4.45338 22.0339 5.50762 21.6048 6.34216 20.9894L5.74868 20.1846ZM2.99943 20.9982L3.02374 19.9985C2.86187 19.9946 2.74102 19.9915 2.63938 19.9859C2.5364 19.9802 2.48588 19.9734 2.46403 19.9692C2.4425 19.965 2.48957 19.9707 2.56165 20.0131C2.59985 20.0355 2.64152 20.0661 2.6818 20.1062C2.72216 20.1464 2.75376 20.1888 2.77739 20.2291L1.91484 20.7351L1.05228 21.2411C1.32488 21.7058 1.75993 21.87 2.08399 21.9327C2.3609 21.9863 2.6975 21.9912 2.97512 21.9979L2.99943 20.9982ZM1.91484 20.7351L2.77741 20.2292C2.84789 20.3493 2.86843 20.4728 2.86591 20.5621C2.86392 20.6328 2.8482 20.6588 2.86487 20.6121C2.88051 20.5684 2.91098 20.4974 2.96836 20.3815C3.02502 20.2671 3.09511 20.1341 3.18463 19.9645L2.30021 19.4978L1.41579 19.0311C1.25555 19.3348 1.08144 19.6594 0.98145 19.9393C0.879822 20.2238 0.753483 20.7316 1.05227 21.241L1.91484 20.7351ZM2.30021 19.4978L3.18462 19.9645C3.68801 19.0106 4.23868 17.5226 3.50326 16.1911L2.62791 16.6746L1.75255 17.1581C1.95134 17.518 1.88547 18.141 1.41579 19.0311L2.30021 19.4978ZM2.62791 16.6746L3.46023 16.1203C2.70344 14.9839 2.12208 13.725 2.03816 12.4264L1.04024 12.4909L0.0423195 12.5554C0.158113 14.347 0.943411 15.9493 1.79559 17.2289L2.62791 16.6746ZM1.04024 12.4909L2.03816 12.4264C1.98728 11.6392 1.98728 10.8224 2.03816 10.0352L1.04024 9.9707L0.0423191 9.90621C-0.0141064 10.7794 -0.0141064 11.6822 0.0423191 12.5554L1.04024 12.4909ZM1.04024 9.9707L2.03816 10.0352C2.28066 6.28278 5.22423 3.31293 8.89572 3.06887L8.8294 2.07107L8.76307 1.07327C4.06854 1.38533 0.348151 5.17398 0.0423194 9.90621L1.04024 9.9707ZM8.8294 2.07107L8.89573 3.06887C10.0702 2.99079 10.2814 2.97959 11.4548 3.03266L11.5 2.03368L11.5452 1.0347C10.281 0.97753 9.99339 0.991486 8.76307 1.07327L8.8294 2.07107ZM10.9953 11.5V12.5H11.0043V11.5V10.5H10.9953V11.5ZM14.9908 11.5V12.5H14.9998V11.5V10.5H14.9908V11.5ZM6.99982 11.5V12.5H7.00879V11.5V10.5H6.99982V11.5ZM21 4.5H20C20 5.88072 18.8807 7 17.5 7V8V9C19.9853 9 22 6.98528 22 4.5H21ZM17.5 8V7C16.1193 7 15 5.88071 15 4.5H14H13C13 6.98529 15.0147 9 17.5 9V8ZM14 4.5H15C15 3.11929 16.1193 2 17.5 2V1V0C15.0147 0 13 2.01471 13 4.5H14ZM17.5 1V2C18.8807 2 20 3.11928 20 4.5H21H22C22 2.01472 19.9853 0 17.5 0V1Z" fill="currentColor"/>
+                    </svg>
+                    <span>การแจ้งเรื่อง</span>
+                </a>
+
+                <a href="parcel_Admin.html" class="nav-menu-item group flex items-center gap-4 px-10 py-4 text-white/80 transition-all duration-300 text-sm tracking-wide rounded-2xl hover:bg-white/10 hover:text-white hover:pl-12 active:scale-95">
+                    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="transition-transform group-hover:scale-110">
+                        <path d="M17 5C17.5304 5 18.0391 4.78929 18.4142 4.41421C18.7893 4.03914 19 3.53043 19 3C19 2.46957 18.7893 1.96086 18.4142 1.58579C18.0391 1.21071 17.5304 1 17 1H3C2.46957 1 1.96086 1.21071 1.58579 1.58579C1.21071 1.96086 1 2.46957 1 3C1 3.53043 1.21071 4.03914 1.58579 4.41421C1.96086 4.78929 2.46957 5 3 5M17 5H3M17 5V15C17 15.5304 16.7893 16.0391 16.4142 16.4142C16.0391 16.7893 15.5304 17 15 17H5C4.46957 17 3.96086 16.7893 3.58579 16.4142C3.21071 16.0391 3 15.5304 3 15V5M8 9H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>การแจ้งพัสดุมาส่ง</span>
+                </a>
+
+            </aside>
+
+
+           <main class="flex-1 p-10 overflow-y-auto bg-[#FDF9EA]">
+               <div class="max-w-6xl mx-auto">
+                  
+                   <div class="flex items-center gap-4 mb-8">
+                       <a href="Room.html" class="text-[#D4591B] hover:scale-110 transition-transform">
+                           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                               <polyline points="15 18 9 12 15 6"></polyline>
+                           </svg>
+                       </a>
+                       <h1 class="text-4xl font-bold text-gray-900 tracking-tight">การแก้ไขข้อมูล</h1>
+                   </div>
+
+
+                   <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+                      
+                       <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                           <div class="bg-[#D4591B] px-6 py-3 flex justify-between items-center text-white">
+                               <span class="font-bold text-lg">รูปภาพตัวอย่าง</span>
+                               <input type="file" id="imageInput" accept="image/*" class="hidden" multiple>
+                               <button id="addImageBtn" class="bg-white text-[#D4591B] text-xs font-bold px-3 py-1 rounded-lg flex items-center gap-1 hover:bg-gray-100 transition-colors">
+                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                   เพิ่มรูปภาพ
+                               </button>
+                           </div>
+                           <div id="imageContainer" class="p-6 flex flex-col gap-4 h-[450px] overflow-y-auto custom-scrollbar">
+                               <!-- Images will be loaded here -->
+                           </div>
+                       </div>
+
+
+                       <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                           <div class="bg-[#D4591B] px-6 py-3 text-white font-bold text-lg">
+                               ข้อมูลห้อง
+                           </div>
+                           <div class="p-8 flex flex-col gap-5">
+                               <input id="tenantName" type="text" placeholder="แก้ไขชื่อผู้เช่า" class="w-full border border-[#D4591B] rounded-full px-6 py-3 outline-none focus:ring-2 focus:ring-orange-200 transition-all">
+                              
+                               <input id="tenantPhone" type="text" placeholder="แก้ไขเบอร์โทรผู้เช่า" class="w-full border border-[#D4591B] rounded-full px-6 py-3 outline-none focus:ring-2 focus:ring-orange-200 transition-all">
+
+
+                               <button id="clearTenantBtn" class="flex items-center justify-center gap-2 border border-[#D4591B] text-[#D4591B] rounded-full py-2 bg-[#D4591B] hover:bg-[#B84A15] text-white transition-colors font-bold">
+                                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                       <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                   </svg>
+                                   ล้างข้อมูลผู้เช่า
+                               </button>
+
+
+                               <div class="grid grid-cols-1 gap-4">
+                                   <input id="roomNum" type="text" placeholder="แก้ไขเลขห้อง" class="border border-[#D4591B] rounded-full px-6 py-3 outline-none">
+                                   <input id="roomPrice" type="text" placeholder="แก้ไขราคาห้อง (บาท)" class="border border-[#D4591B] rounded-full px-6 py-3 outline-none">
+                                   <input id="elecRate" type="text" placeholder="แก้ไขค่าไฟ(บาท/หน่วย)" class="border border-[#D4591B] rounded-full px-6 py-3 outline-none">
+                                   <input id="waterRate" type="text" placeholder="แก้ไขค่าน้ำ(บาท/หน่วย หรือ เหมาจ่าย)" class="border border-[#D4591B] rounded-full px-6 py-3 outline-none">
+                                  
+                                   <div class="relative">
+                                       <select id="roomType" class="w-full border border-[#D4591B] rounded-full px-6 py-3 outline-none appearance-none bg-white">
+                                           <option>พัดลม</option>
+                                           <option>แอร์</option>
+                                       </select>
+                                       <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#D4591B]">
+                                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+                                       </div>
+                                   </div>
+                               </div>
+
+
+                               <textarea id="additionalInfo" placeholder="สิ่งของเพิ่มเติม" class="w-full border border-[#D4591B] rounded-[2rem] px-6 py-4 outline-none h-28 focus:ring-2 focus:ring-orange-200 custom-scrollbar"></textarea>
+
+
+                               <div class="flex justify-between items-center mt-2">
+                                   <button id="resetBtn" class="flex items-center gap-2 text-gray-500 hover:text-[#D4591B] transition-colors underline decoration-dotted underline-offset-4">
+                                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>
+                                       รีเซ็ตการแก้ไข
+                                   </button>
+                                   <button id="saveBtn" class="bg-[#D4591B] text-white px-8 py-3 rounded-2xl font-bold hover:bg-[#b34000] shadow-lg shadow-orange-200 transition-all hover:scale-105 active:scale-95">
+                                       บันทึกข้อมูล
+                                   </button>
+                               </div>
+                           </div>
+                       </div>
+
+
+                   </div>
+               </div>
+               <div id="imagePreviewModal" class="hidden fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 cursor-pointer">
+                   <div class="relative max-w-5xl max-h-full">
+                       <img id="previewImage" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl object-contain">
+                   </div>
+               </div>
+               <div id="saveConfirmModal" class="hidden fixed inset-0 bg-black/40 z-[100] items-center justify-center">
+                   <div class="bg-white rounded-[2.5rem] p-12 w-[480px] max-w-[90vw] shadow-2xl text-center">
+                       <h2 class="text-2xl font-bold mb-12 text-gray-800">ยืนยันที่จะบันทึกข้อมูลหรือไม่</h2>
+                       <div class="flex gap-6 justify-center">
+                           <button id="cancelSaveBtn" class="flex-1 px-8 py-3 rounded-xl border-2 border-[#D4591B] text-[#D4591B] font-bold hover:bg-orange-50 transition-all">ยกเลิก</button>
+                           <button id="confirmSaveBtn" class="flex-1 px-8 py-3 rounded-xl bg-[#D4591B] hover:bg-[#b34000] text-white font-bold shadow-lg transition-all">ตกลง</button>
+                       </div>
+                   </div>
+               </div>
+           </main>
+       </div>
+   </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomNumParam = urlParams.get('room');
+
+        document.addEventListener('click', (e) => {
+            if (!notifBtn.contains(e.target) && !notifPopup.contains(e.target)) {
+                notifPopup.classList.add('hidden');
+            }
+        });
+        
+        let roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
+        let roomData = roomsData.find(r => r.roomNum === roomNumParam);
+
+        const saveConfirmModal = document.getElementById('saveConfirmModal');
+        
+        // Image handling
+        const imageInput = document.getElementById('imageInput');
+        const addImageBtn = document.getElementById('addImageBtn');
+        const imageContainer = document.getElementById('imageContainer');
+        const imagePreviewModal = document.getElementById('imagePreviewModal');
+        const previewImage = document.getElementById('previewImage');
+
+        // Close modal on click
+        imagePreviewModal.addEventListener('click', () => {
+            imagePreviewModal.classList.add('hidden');
+        });
+
+        let currentImages = [];
+
+        function renderImages() {
+            imageContainer.innerHTML = '';
+            currentImages.forEach((imgSrc, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <img src="${imgSrc}" onclick="openImageModal(${index})" class="w-full h-48 object-cover rounded-3xl cursor-pointer hover:opacity-90 transition-opacity" alt="room preview">
+                    <button onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md hover:bg-red-600 transition-colors">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                `;
+                imageContainer.appendChild(div);
+            });
+        }
+
+        window.removeImage = (index) => {
+            currentImages.splice(index, 1);
+            renderImages();
+        };
+
+        window.openImageModal = (index) => {
+            const src = currentImages[index];
+            previewImage.src = src;
+            imagePreviewModal.classList.remove('hidden');
+        };
+
+        addImageBtn.addEventListener('click', () => imageInput.click());
+
+        imageInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files); 
+            
+            if (files.length > 0) {
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            // สร้าง Image Object เพื่อเช็คขนาดดั้งเดิม
+                            const img = new Image();
+                            img.onload = () => {
+                                // สร้าง Canvas เพื่อลดขนาดรูป
+                                const canvas = document.createElement('canvas');
+                                const MAX_WIDTH = 800; // กำหนดความกว้างสูงสุด
+                                const MAX_HEIGHT = 800; // กำหนดความสูงสูงสุด
+                                let width = img.width;
+                                let height = img.height;
+
+                                // คำนวณสัดส่วนรูปภาพใหม่
+                                if (width > height) {
+                                    if (width > MAX_WIDTH) {
+                                        height *= MAX_WIDTH / width;
+                                        width = MAX_WIDTH;
+                                    }
+                                } else {
+                                    if (height > MAX_HEIGHT) {
+                                        width *= MAX_HEIGHT / height;
+                                        height = MAX_HEIGHT;
+                                    }
+                                }
+
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
+
+                                // แปลงรูปที่ย่อแล้วเป็น Base64 และลดคุณภาพลงเหลือ 70% (0.7)
+                                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                                
+                                // เก็บรูปลง Array และอัปเดตหน้าจอ
+                                currentImages.push(compressedDataUrl);
+                                renderImages(); 
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            imageInput.value = ''; 
+        });
+
+        if (roomData) {
+            document.getElementById('tenantName').value = roomData.tenantName !== '-' ? roomData.tenantName : '';
+            document.getElementById('tenantPhone').value = roomData.phone !== '-' ? roomData.phone : '';
+            document.getElementById('roomNum').value = roomData.roomNum;
+            if (roomData.price) document.getElementById('roomPrice').value = roomData.price;
+            if (roomData.elecRate) document.getElementById('elecRate').value = roomData.elecRate;
+            if (roomData.waterRate) document.getElementById('waterRate').value = roomData.waterRate;
+            if (roomData.roomType) document.getElementById('roomType').value = roomData.roomType;
+            if (roomData.additionalInfo) document.getElementById('additionalInfo').value = roomData.additionalInfo;
+            
+            if (roomData.images && Array.isArray(roomData.images)) {
+                currentImages = [...roomData.images];
+            } else {
+                currentImages = ["https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&w=800&q=80"]; // Default image
+            }
+            renderImages();
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            // ดึงค่าจาก input มาตรวจสอบ
+            const tenantName = document.getElementById('tenantName').value.trim();
+            const tenantPhone = document.getElementById('tenantPhone').value.trim();
+            
+            // ตรวจสอบว่ามีข้อมูลผู้เช่าหรือไม่ (ชื่อหรือเบอร์โทรไม่เป็นค่าว่างและไม่ใช่ '-')
+            const hasTenant = (tenantName !== '' && tenantName !== '-') || (tenantPhone !== '' && tenantPhone !== '-');
+
+            if (hasTenant) {
+                const roomPrice = document.getElementById('roomPrice').value.trim();
+                const elecRate = document.getElementById('elecRate').value.trim();
+                const waterRate = document.getElementById('waterRate').value.trim();
+                const roomType = document.getElementById('roomType').value;
+
+
+                // ดักจับว่ากรอกข้อมูลห้องครบหรือไม่
+                if (!roomPrice || !elecRate || !waterRate || roomType === 'เลือกประเภทห้อง') {
+                    alert('กรุณากรอก ราคาห้อง, ค่าไฟ, ค่าน้ำ และเลือกประเภทห้อง ให้ครบถ้วน เนื่องจากมีการระบุข้อมูลผู้เช่า');
+                    return; // หยุดการทำงาน ไม่ให้แสดง Modal ยืนยัน
+                }
+            }
+
+            // ถ้าไม่มีผู้เช่า หรือ มีผู้เช่าและกรอกข้อมูลครบแล้ว ให้แสดง Modal ยืนยัน
+            saveConfirmModal.classList.replace('hidden', 'flex');
+        });
+
+        document.getElementById('cancelSaveBtn').addEventListener('click', () => {
+            saveConfirmModal.classList.replace('flex', 'hidden');
+        });
+
+        document.getElementById('confirmSaveBtn').addEventListener('click', () => {
+            if (roomData) {
+                roomData.tenantName = document.getElementById('tenantName').value.trim() || '-';
+                roomData.phone = document.getElementById('tenantPhone').value.trim() || '-';
+                roomData.roomNum = document.getElementById('roomNum').value.trim();
+                roomData.price = document.getElementById('roomPrice').value.trim() || '-';
+                roomData.elecRate = document.getElementById('elecRate').value.trim();
+                roomData.waterRate = document.getElementById('waterRate').value.trim();
+                
+                // ดึงค่าประเภทห้องมาเช็ค ถ้าไม่ได้เลือก (เป็นคำว่า เลือกประเภทห้อง) ให้เปลี่ยนเป็น '-'
+                const selectedType = document.getElementById('roomType').value;
+                roomData.roomType = (selectedType === 'เลือกประเภทห้อง') ? '-' : selectedType;
+                
+                roomData.additionalInfo = document.getElementById('additionalInfo').value.trim();
+                roomData.images = currentImages;
+
+
+                // เพิ่ม try...catch เพื่อดักจับ Error กรณี Storage เต็ม
+                try {
+                    localStorage.setItem('dormRoomsData', JSON.stringify(roomsData));
+                    saveConfirmModal.classList.replace('flex', 'hidden');
+                    window.location.href = 'Room.html';
+                } catch (error) {
+                    alert('ไม่สามารถบันทึกได้ เนื่องจากขนาดรูปภาพรวมกันใหญ่เกินไป (เกินลิมิต 5MB ของระบบทดสอบ) กรุณาลบรูปบางส่วนออกครับ');
+                    console.error('LocalStorage Error:', error);
+                    saveConfirmModal.classList.replace('flex', 'hidden');
+                }
+            }
+        });
+
+        saveConfirmModal.addEventListener('click', (e) => {
+            if (e.target === saveConfirmModal) {
+                saveConfirmModal.classList.replace('flex', 'hidden');
+            }
+        });
+
+        document.getElementById('clearTenantBtn').addEventListener('click', () => {
+            document.getElementById('tenantName').value = '';
+            document.getElementById('tenantPhone').value = '';
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            window.location.reload();
+        });
+    });
+    //โปรไฟล์และแจ้งเตือน
+            const profileBtn = document.getElementById('profile-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            
+            const notiBtn = document.getElementById('noti-btn');
+            const notiDropdown = document.getElementById('notifPopup');
+
+            // เมื่อกดปุ่มโปรไฟล์
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+                // บังคับปิดป๊อปอัพแจ้งเตือนเพื่อไม่ให้ซ้อนกัน
+                if (notiDropdown) notiDropdown.classList.add('hidden');
+            });
+
+            // เมื่อกดปุ่มแจ้งเตือน
+            notiBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                notiDropdown.classList.toggle('hidden');
+                // บังคับปิดป๊อปอัพโปรไฟล์เพื่อไม่ให้ซ้อนกัน
+                if (profileDropdown) profileDropdown.classList.add('hidden');
+            });
+
+            // ดักจับการคลิกพื้นที่อื่นบนหน้าจอเพื่อปิดป๊อปอัพทั้งคู่
+            document.addEventListener('click', (e) => {
+                // เช็คว่าไม่ได้คลิกที่ปุ่มและตัวป๊อปอัพโปรไฟล์
+                if (profileDropdown && !profileDropdown.classList.contains('hidden') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.add('hidden');
+                }
+                // เช็คว่าไม่ได้คลิกที่ปุ่มและตัวป๊อปอัพแจ้งเตือน
+                if (notiDropdown && !notiDropdown.classList.contains('hidden') && !notiBtn.contains(e.target) && !notiDropdown.contains(e.target)) {
+                    notiDropdown.classList.add('hidden');
+                }
+            });
+
+            function gotoPage(page) { window.location.href = page; }
+    </script>
+    <script src="sidebar.js"></script>
+</body>
+</html>
