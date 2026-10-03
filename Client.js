@@ -1,26 +1,13 @@
-// นำเข้า dotenv เพื่อให้อ่านค่าจากไฟล์ .env ได้
-require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
+// Supabase client สำหรับฝั่งเบราว์เซอร์
+//
+// ใช้ ESM (import/export) เพราะหน้าเว็บเป็น static HTML ที่โหลดผ่าน Live Server
+// ถ้าใช้ require() ของ Node เบราว์เซอร์จะรันไม่ได้
+//
+// ใช้ในหน้าเว็บแบบนี้:
+//   import { supabase } from '../Client.js';
+//   const { data, error } = await supabase.from('vacant_rooms').select('*');
 
-// ดึงค่าตัวแปรจาก Environment
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-// สร้าง Supabase Client
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// ตัวอย่างฟังก์ชันสำหรับทดสอบการดึงข้อมูล
-async function fetchUsers() {
-  const { data, error } = await supabase
-    .from('users') // เปลี่ยน 'users' เป็นชื่อ table ของคุณ
-    .select('*')
-    .limit(5);
-
-  if (error) {
-    console.error('Error fetching data:', error);
-  } else {
-    console.log('Connected successfully. Data:', data);
-  }
-}
-
-fetchUsers();
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

@@ -32,7 +32,7 @@
         .text-active { font-weight: 500 !important; color: #FFFFFF !important; text-shadow: none !important; }
     </style>
 </head>
-<body class="bg-phet-bg min-h-screen text-gray-800 font-sans">
+<body data-guard="tenant" class="bg-phet-bg min-h-screen text-gray-800 font-sans">
 
     <header class="bg-phet-orange flex justify-between items-center px-8 h-16 shadow-[0_4px_12px_rgba(160,64,0,0.35)] relative z-30">
         <div class="w-1/3 flex justify-start">
@@ -180,30 +180,6 @@
             }
         }
 
-        function loadBalance() {
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
-            const roomNum = myRoom ? myRoom.roomNum : null;
-
-            const balanceElement = document.getElementById('balance-amount');
-            if (!roomNum) {
-                balanceElement.innerText = "0";
-                return;
-            }
-
-            let totalOwed = 0;
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('bill_')) {
-                    const billData = JSON.parse(localStorage.getItem(key));
-                    if (billData && billData[roomNum] && billData[roomNum].isSent && billData[roomNum].status === "รอชำระเงิน") {
-                        totalOwed += billData[roomNum].total;
-                    }
-                }
-            }
-            balanceElement.innerText = totalOwed.toLocaleString();
-        }
-
         function gotoPage(page) {
         const indicator = document.getElementById("slide-indicator");
         const active = document.querySelector(".text-active"); 
@@ -238,8 +214,6 @@
         document.addEventListener("DOMContentLoaded", async () => {
             initMenus();
 
-            loadTenantRoom(); // โหลดข้อมูลห้องและชื่อ
-            loadBalance();    // โหลดยอดค้างชำระ
             checkBalance();
             if (document.fonts) await document.fonts.ready;
 
@@ -278,30 +252,9 @@
                 link.onclick = (e) => { e.preventDefault(); gotoPage(link.getAttribute("data-href")); };
             });
         });
-
-        // ฟังก์ชันดึงข้อมูลห้องของผู้เช่าที่ล็อกอิน
-        function loadTenantRoom() {
-            // 1. จำลองว่าผู้ใช้ที่ล็อกอินอยู่คือ "เจษฎา พรมภิบาล" (ในระบบจริงจะดึงจาก Session/Login)
-            const currentUserName = "เจษฎา พรมภิบาล"; 
-            
-            // 2. ไปดึงตารางห้องพักทั้งหมดจากที่ Admin บันทึกไว้
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            
-            // 3. ค้นหาว่ามีห้องไหนไหมที่ "ชื่อผู้เช่า" ตรงกับคนล็อกอิน
-            // ใช้ .includes("เจษฎา") เพื่อให้ค้นหาเจอแม้ว่าจะพิมพ์แค่ชื่อ
-            const myRoom = roomsData.find(room => room.tenantName.includes("เจษฎา"));
-            
-            // 4. เอาข้อมูลมาแสดงบนหน้าจอ
-            if (myRoom) {
-                document.getElementById('display-room').innerText = myRoom.roomNum;
-                document.getElementById('display-name').innerText = myRoom.tenantName;
-            } else {
-                // กรณีเจษฎายังไม่มีห้อง (โดนลบชื่อออก)
-                document.getElementById('display-room').innerText = "ยังไม่มีห้องพัก";
-                document.getElementById('display-name').innerText = currentUserName;
-                document.getElementById('balance-amount').innerText = "0";
-            }
-        }
     </script>
+
+    <script type="module" src="../js/tenant-home.js"></script>
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

@@ -48,48 +48,6 @@
     </main>
  
 <script>
-    // โหลดข้อมูลเมื่อเปิดหน้า
-    document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('vacantRoomContainer');
-        const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-        
-        // กรองเฉพาะห้องที่ว่าง (ไม่มีผู้เช่า หรือผู้เช่าเป็น '-')
-        const vacantRooms = roomsData.filter(room => !room.tenantName || room.tenantName.trim() === '' || room.tenantName === '-');
-
-        if (vacantRooms.length === 0) {
-            container.innerHTML = `<p class="col-span-full text-center text-2xl font-bold text-gray-800">ขณะนี้ยังไม่มีห้องว่างครับ</p>`;
-            return;
-        }
-
-        // วนลูปสร้างการ์ดห้องว่าง
-        vacantRooms.forEach(room => {
-            // ดึงรูปภาพแรกจาก array images (ถ้ามี) ถ้าไม่มีให้ใช้รูป default
-            const firstImage = (room.images && room.images.length > 0) ? room.images[0] : '../img/home.jpg';
-
-            const card = document.createElement('div');
-            card.className = "bg-white rounded-3xl shadow-xl overflow-hidden";
-            card.innerHTML = `
-                <div class="flex p-6 gap-6">
-                    <img src="${firstImage}" class="w-28 h-28 rounded-xl object-cover">
-                    <div class="space-y-2 text-lg">
-                        <p><b>ห้อง :</b> ${room.roomNum}</p>
-                        <p><b>ประเภท :</b> ${room.roomType || '-'}</p>
-                        <p><b>ราคา :</b> ${room.price || '-'} บาท</p>
-                    </div>
-                </div>
-                <div class="w-full bg-[#D35400] py-3 px-6 flex items-center justify-between">
-                    <span class="text-white text-lg font-semibold">รายละเอียด</span>
-                    <button onclick="gotoPage('Detail_vacant_room.html?room=${room.roomNum}')" class="text-white hover:scale-110 transition">
-                        <svg width="12" height="21" viewBox="0 0 12 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1.5 19.5L10.5 10.5L1.5 1.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    });
-
     function gotoPage(page){
         window.location.href = page;
     }
@@ -102,6 +60,8 @@
         document.getElementById("contactModal").classList.add("hidden");
     }
 </script>
+
+<script type="module" src="../js/vacant.js"></script>
  
     <div id="contactModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-3xl shadow-2xl p-10 w-[90%] max-w-2xl relative">

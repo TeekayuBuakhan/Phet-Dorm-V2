@@ -43,7 +43,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #D1D5DB; }
     </style>
 </head>
-<body class="bg-phet-bg min-h-screen text-gray-800 font-sans">
+<body data-guard="tenant" class="bg-phet-bg min-h-screen text-gray-800 font-sans">
 
     <div id="custom-alert" class="hidden fixed inset-0 z-[100] flex items-center justify-center modal-overlay" onclick="closeAlert()">
         <div class="bg-white rounded-[40px] p-10 flex flex-col items-center space-y-6 shadow-2xl max-w-xs w-full mx-4 transition-all duration-300 modal-enter" id="alert-box">
@@ -152,16 +152,21 @@
     </main>
 
     <script>
-        // โหลดข้อมูลจาก Local Storage
-        let repairData = JSON.parse(localStorage.getItem('phetDromRepairData')) || [];
-        
+        // โหลดข้อมูลจาก Supabase (ผ่านโมดูล js/reports.js)
+        let repairData = null;
+
         // ตัวแปรสำหรับเก็บรูปภาพที่เตรียมอัปโหลดหลายรูป
         let currentUploadedImages = [];
+        let currentFiles = [];
+        let myRoomNumber = null;
 
-        function getThaiDate() {
-            const now = new Date();
-            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-            return `${now.getDate()} ${thaiMonths[now.getMonth()]} ${(now.getFullYear() + 543).toString().slice(-2)}`;
+        // สคริปต์ปกติเรียก import โมดูลไม่ได้ จึงโหลดผ่าน dynamic import แล้วแชร์ให้ทั้งหน้า
+        let reportsApi = null;
+        function getReportsApi() {
+            if (!reportsApi) {
+                reportsApi = import('../js/reports.js');
+            }
+            return reportsApi;
         }
 
         function gotoPage(page) {
@@ -179,6 +184,7 @@
 
         function renderFormView() {
             currentUploadedImages = []; 
+            currentFiles = []; 
             
             document.getElementById('action-btn-placeholder').innerHTML = `
                 <button onclick="submitRepair()" class="group flex items-center space-x-3 bg-white text-phet-orange hover:bg-orange-50 px-8 py-3 rounded-2xl text-3xl font-bold shadow-md hover:shadow-xl active:scale-95 transition-all duration-200">
@@ -211,7 +217,8 @@
         }
 
         function renderDetailView(id) {
-            const item = repairData.find(r => r.id === id); 
+            const item = repairData.find(r => r.id === id);
+            if (!item) return; 
             document.getElementById('action-btn-placeholder').innerHTML = `<button onclick="renderListView()" class="bg-white text-phet-orange hover:bg-orange-50 px-10 py-3 rounded-2xl text-3xl font-bold shadow-md transition-all hover:shadow-lg">ย้อนกลับ</button>`;
             
             const imagesToDisplay = item.images || (item.img ? [item.img] : []);
@@ -250,6 +257,7 @@
                     const reader = new FileReader();
                     reader.onload = e => {
                         currentUploadedImages.push(e.target.result);
+                        currentFiles.push(file);
                         updatePreviewBox();
                     };
                     reader.readAsDataURL(file);
@@ -282,6 +290,7 @@
 
         function removeImage(index) {
             currentUploadedImages.splice(index, 1);
+            currentFiles.splice(index, 1);
             updatePreviewBox();
         }
 
@@ -332,7 +341,7 @@
                             </tr>
                         </thead>
                         <tbody class="text-gray-700 text-xl font-medium">
-                            ${repairData.length === 0 ? `<tr><td colspan="5" class="py-10 text-gray-400">ยังไม่มีประวัติการแจ้งเหตุ</td></tr>` : 
+                            ${repairData === null ? `<tr><td colspan="5" class="py-10 text-gray-400">กำลังโหลดข้อมูล...</td></tr>` : repairData.length === 0 ? `<tr><td colspan="5" class="py-10 text-gray-400">ยังไม่มีประวัติการแจ้งเหตุ</td></tr>` : 
                             repairData.map(item => `
                                 <tr class="border-b border-gray-50 hover:bg-orange-50/30 transition-colors">
                                     <td class="py-6">${item.date}</td>
@@ -342,11 +351,11 @@
                                             ${item.status}
                                         </span>
                                     </td>
-                                    <td class="py-6">${item.action}</td>
+                                    <td class="py-6">-</td>
                                     <td class="py-6 flex justify-center space-x-3">
-                                        <button onclick="renderDetailView(${item.id})" class="bg-phet-orange text-white px-5 py-2 rounded-xl text-lg hover:scale-105 transition-all shadow-sm">รายละเอียด</button>
+                                        <button onclick="renderDetailView('${item.id}')" class="bg-phet-orange text-white px-5 py-2 rounded-xl text-lg hover:scale-105 transition-all shadow-sm">รายละเอียด</button>
                                         ${item.status === 'ยังไม่ได้รับเรื่อง' ? `
-                                            <button onclick="cancelRepair(${item.id})" class="bg-red-500 text-white px-5 py-2 rounded-xl text-lg hover:scale-105 hover:bg-red-600 transition-all shadow-sm">
+                                            <button onclick="cancelRepair('${item.id}')" class="bg-red-500 text-white px-5 py-2 rounded-xl text-lg hover:scale-105 hover:bg-red-600 transition-all shadow-sm">
                                                 ยกเลิก
                                             </button>
                                         ` : ''}
@@ -357,36 +366,57 @@
                 </div>`;
         }
 
-        function cancelRepair(id) {
-            if(confirm("คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำร้องนี้?")) {
-                repairData = repairData.filter(item => item.id !== id);
-                localStorage.setItem('phetDromRepairData', JSON.stringify(repairData));
-                renderListView();
+        async function cancelRepair(id) {
+            if(!confirm("คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำร้องนี้?")) return;
+
+            try {
+                const { deleteReport } = await getReportsApi();
+                await deleteReport(id);
+                await refreshReports();
+            } catch (error) {
+                alert(`ยกเลิกคำร้องไม่สำเร็จ: ${error.message}`);
             }
         }
 
-        function submitRepair() {
+        async function submitRepair() {
             const t = document.getElementById('f-type').value;
             const d = document.getElementById('f-detail').value;
-            
+
             if(!t || !d) { showAlert(); return; }
-            
-            const imagesToSave = [...currentUploadedImages];
-            
-            repairData.unshift({ 
-                date: getThaiDate(), 
-                type: t, 
-                status: 'ยังไม่ได้รับเรื่อง', 
-                action: '-', 
-                detail: d, 
-                images: imagesToSave, 
-                id: Date.now() 
-            });
-            
-            localStorage.setItem('phetDromRepairData', JSON.stringify(repairData));
-            
-            currentUploadedImages = [];
-            
+            if(!myRoomNumber) { alert('ยังไม่มีข้อมูลห้องพัก กรุณาติดต่อผู้ดูแล'); return; }
+
+            const button = document.querySelector('#action-btn-placeholder button');
+            if (button) button.disabled = true;
+
+            try {
+                const { createReport } = await getReportsApi();
+                await createReport({
+                    roomNumber: myRoomNumber,
+                    type: t,
+                    detail: d,
+                    files: [...currentFiles],
+                });
+
+                currentUploadedImages = [];
+                currentFiles = [];
+
+                await refreshReports();
+            } catch (error) {
+                alert(`ส่งคำร้องไม่สำเร็จ: ${error.message}`);
+            } finally {
+                if (button) button.disabled = false;
+            }
+        }
+
+        // โหลดคำร้องของห้องตัวเองจากฐานข้อมูล
+        async function refreshReports() {
+            try {
+                const { loadReports } = await getReportsApi();
+                repairData = await loadReports(myRoomNumber);
+            } catch (error) {
+                repairData = [];
+                alert(`โหลดข้อมูลคำร้องไม่สำเร็จ: ${error.message}`);
+            }
             renderListView();
         }
 
@@ -433,20 +463,30 @@
             renderListView();
         };
 
-        function loadTenantData() {
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
+        async function loadTenantData() {
+            const { supabase } = await import('../Client.js');
 
-            if (myRoom) {
-                document.querySelectorAll('.display-room').forEach(el => el.innerText = myRoom.roomNum);
-                document.querySelectorAll('.display-name').forEach(el => el.innerText = myRoom.tenantName);
-            } else {
-                document.querySelectorAll('.display-room').forEach(el => el.innerText = "ไม่มีห้อง");
-                document.querySelectorAll('.display-name').forEach(el => el.innerText = "เจษฎา พรมภิบาล");
-            }
+            document.querySelectorAll('.display-room').forEach(el => el.innerText = "กำลังโหลด");
+            document.querySelectorAll('.display-name').forEach(el => el.innerText = "กำลังโหลด");
+
+            const { data: profile, error } = await supabase.auth.getUser();
+            if (error || !profile?.user) return;
+
+            const { data: rows } = await supabase
+                .from('tenant')
+                .select('room_number')
+                .limit(1)
+                .maybeSingle();
+
+            myRoomNumber = rows?.room_number ?? null;
+
+            document.querySelectorAll('.display-room').forEach(el => el.innerText = myRoomNumber ?? "ไม่มีห้อง");
+            document.querySelectorAll('.display-name').forEach(el => el.innerText = profile.user.user_metadata?.full_name ?? "-");
         }
 
-        loadTenantData();
+        loadTenantData().then(() => refreshReports());
     </script>
+
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

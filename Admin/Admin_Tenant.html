@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+<body data-guard="admin" class="text-gray-800 font-sans flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
@@ -139,7 +139,7 @@
                 </button>
                 <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
                     <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
-                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                        <button onclick="window.location.href='../Login/Profile.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                             <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
                         </button>
@@ -256,226 +256,7 @@
     </div>
 
     <script>
-        const defaultUsers = [
-            { username: 'เจษฎา พรมภิบาล', phone: '0660890158' },
-            { username: 'นกกระจอกเทศ มะพร้าวอ่อน', phone: '0822222222' },
-            { username: 'มงคล ไดโนซอซา', phone: '0544321999' },
-            { username: 'สมชาย ใจดี', phone: '0812345678' },
-            { username: 'วีระ แสงทอง', phone: '0891234567' }
-        ];
-
-        const tbody = document.getElementById('tenantBody');
-        let currentRows = [];
-
-        if (!localStorage.getItem('users')) {
-            localStorage.setItem('users', JSON.stringify(defaultUsers));
-        }
-
-        function getUsers() {
-            return JSON.parse(localStorage.getItem('users')) || [];
-        }
-
-        function getRoomsData() {
-            return JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-        }
-
-        function normalize(str) {
-            return String(str || '').trim().toLowerCase();
-        }
-
-        function formatPhone(p) {
-            if (!p || p === '-') return '-';
-            const digits = String(p).replace(/\D/g, '');
-            if (digits.length === 10) {
-                return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-            }
-            return p;
-        }
-
-        function buildRows() {
-            const users = getUsers();
-            const rooms = getRoomsData();
-            return users.map(u => {
-                const room = rooms.find(r => normalize(r.tenantName) === normalize(u.username));
-                return { ...u, roomNum: room ? room.roomNum : null };
-            }).sort((a, b) => (b.roomNum ? 1 : 0) - (a.roomNum ? 1 : 0));
-        }
-
-        function renderTable() {
-            currentRows = buildRows();
-            tbody.innerHTML = '';
-
-            const withRoom = currentRows.filter(r => r.roomNum).length;
-            document.getElementById('statTotal').innerText = currentRows.length;
-            document.getElementById('statWithRoom').innerText = withRoom;
-            document.getElementById('statNoRoom').innerText = currentRows.length - withRoom;
-
-            if (currentRows.length === 0) {
-                tbody.innerHTML = `
-                    <tr class="border-b border-gray-50">
-                        <td colspan="5" class="py-10 text-gray-400">ยังไม่มีผู้ใช้ในระบบ</td>
-                    </tr>`;
-                return;
-            }
-
-            currentRows.forEach((row, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
-                const roomHtml = row.roomNum
-                    ? `<span class="inline-block bg-green-100 text-green-700 font-bold rounded-full px-3 py-1 text-xs border border-green-200">${row.roomNum}</span>`
-                    : `<span class="text-gray-400">-</span>`;
-
-                let actionHtml;
-                if (row.roomNum) {
-                    actionHtml = `
-                        <button class="btn-move-out inline-flex items-center gap-1.5 bg-red-50 text-red-500 border border-red-200 hover:bg-red-500 hover:text-white font-medium rounded-xl px-4 py-2 text-xs transition-colors" data-idx="${idx}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
-                            ย้ายออก
-                        </button>`;
-                } else {
-                    actionHtml = `
-                        <button class="btn-move-in inline-flex items-center gap-1.5 bg-btn-green text-white hover:bg-emerald-500 font-medium rounded-xl px-4 py-2 text-xs transition-colors shadow-sm" data-idx="${idx}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5m10 0h-5V4m0 9h5v5M4 20h7m-7-4h7m4-5v6" /></svg>
-                            ย้ายเข้า
-                        </button>`;
-                }
-
-                tr.innerHTML = `
-                    <td class="py-4 px-4 text-gray-400">${idx + 1}</td>
-                    <td class="py-4 px-4 font-medium text-gray-800">${row.username}</td>
-                    <td class="py-4 px-4">${formatPhone(row.phone)}</td>
-                    <td class="py-4 px-4">${roomHtml}</td>
-                    <td class="py-4 px-4">${actionHtml}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        renderTable();
-
-        // ---- ย้ายเข้า ----
-        let moveInUser = null;
-        const moveInModal = document.getElementById('moveInModal');
-
-        function openMoveInModal(user) {
-            moveInUser = user;
-            document.getElementById('moveInUserName').innerText = user.username;
-            document.getElementById('moveInRoomNum').value = '';
-            moveInModal.classList.replace('hidden', 'flex');
-        }
-
-        document.getElementById('confirmMoveInBtn').addEventListener('click', () => {
-            if (!moveInUser) return;
-            const roomNum = document.getElementById('moveInRoomNum').value.trim();
-            if (!roomNum) { alert('กรุณากรอกเลขห้อง'); return; }
-
-            const rooms = getRoomsData();
-            const room = rooms.find(r => normalize(r.roomNum) === normalize(roomNum));
-
-            if (!room) {
-                alert('ไม่มีห้องนั้นอยู่');
-                return;
-            }
-
-            const isOccupied = room.tenantName && room.tenantName.trim() !== '' && room.tenantName !== '-';
-            if (isOccupied) {
-                alert(`ห้อง ${room.roomNum} มีผู้พักอาศัยอยู่แล้ว`);
-                return;
-            }
-
-            room.tenantName = moveInUser.username;
-            room.phone = moveInUser.phone || '-';
-            localStorage.setItem('dormRoomsData', JSON.stringify(rooms));
-
-            moveInModal.classList.replace('flex', 'hidden');
-            moveInUser = null;
-            renderTable();
-        });
-
-        document.getElementById('cancelMoveInBtn').addEventListener('click', () => {
-            moveInModal.classList.replace('flex', 'hidden');
-            moveInUser = null;
-        });
-
-        moveInModal.addEventListener('click', e => {
-            if (e.target === moveInModal) {
-                moveInModal.classList.replace('flex', 'hidden');
-                moveInUser = null;
-            }
-        });
-
-        document.getElementById('moveInRoomNum').addEventListener('keydown', e => {
-            if (e.key === 'Enter') document.getElementById('confirmMoveInBtn').click();
-        });
-
-        // ---- ย้ายออก ----
-        let moveOutUser = null;
-        let moveOutRoomNum = null;
-        const moveOutModal = document.getElementById('moveOutModal');
-
-        function openMoveOutModal(user, roomNum) {
-            moveOutUser = user;
-            moveOutRoomNum = roomNum;
-            document.getElementById('moveOutConfirmText').innerText = `ยืนยันที่จะย้าย ${user.username} ออกจากห้อง ${roomNum} หรือไม่?`;
-            moveOutModal.classList.replace('hidden', 'flex');
-        }
-
-        document.getElementById('confirmMoveOutBtn').addEventListener('click', () => {
-            if (!moveOutUser || !moveOutRoomNum) return;
-
-            const rooms = getRoomsData();
-            const room = rooms.find(r => r.roomNum === moveOutRoomNum);
-            if (room) {
-                room.tenantName = '-';
-                room.phone = '-';
-                localStorage.setItem('dormRoomsData', JSON.stringify(rooms));
-            }
-
-            moveOutModal.classList.replace('flex', 'hidden');
-            moveOutUser = null;
-            moveOutRoomNum = null;
-            renderTable();
-        });
-
-        document.getElementById('cancelMoveOutBtn').addEventListener('click', () => {
-            moveOutModal.classList.replace('flex', 'hidden');
-            moveOutUser = null;
-            moveOutRoomNum = null;
-        });
-
-        moveOutModal.addEventListener('click', e => {
-            if (e.target === moveOutModal) {
-                moveOutModal.classList.replace('flex', 'hidden');
-                moveOutUser = null;
-                moveOutRoomNum = null;
-            }
-        });
-
-        // ---- Event delegation สำหรับปุ่มในตาราง ----
-        tbody.addEventListener('click', e => {
-            const moveInBtn = e.target.closest('.btn-move-in');
-            if (moveInBtn) {
-                const row = currentRows[parseInt(moveInBtn.getAttribute('data-idx'))];
-                if (row) openMoveInModal(row);
-                return;
-            }
-            const moveOutBtn = e.target.closest('.btn-move-out');
-            if (moveOutBtn) {
-                const row = currentRows[parseInt(moveOutBtn.getAttribute('data-idx'))];
-                if (row) openMoveOutModal(row, row.roomNum);
-            }
-        });
-
-        // ---- ค้นหา ----
-        document.getElementById("searchInput").addEventListener("keyup", function() {
-            const input = this.value.trim().toLowerCase();
-            const rows = tbody.getElementsByTagName("tr");
-
-            for (let i = 0; i < rows.length; i++) {
-                const text = rows[i].textContent || rows[i].innerText;
-                rows[i].style.display = text.toLowerCase().indexOf(input) > -1 ? "" : "none";
-            }
-        });
+        // ข้อมูลผู้เช่าโหลดจากฐานข้อมูลผ่าน js/admin-tenants.js
 
         // ---- Dropdowns Top Nav ----
         const profileBtn = document.getElementById('profile-btn');
@@ -504,5 +285,7 @@
             }
         });
     </script>
+
+    <script type="module" src="../js/admin-tenants.js"></script>
 </body>
 </html>

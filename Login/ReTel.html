@@ -63,7 +63,7 @@
                     <div class="flex space-x-3">
                         <input type="text" id="otp-input" placeholder="เลข 6 หลัก" maxlength="6"
                             class="flex-1 px-5 py-4 border border-gray-200 rounded-[24px] focus:ring-2 focus:ring-phet-orange outline-none transition-all text-lg shadow-sm">
-                        <button onclick="sendOTP()" id="send-otp-btn" 
+                        <button id="send-otp-btn" type="button"
                             class="px-6 py-4 bg-phet-orange text-white rounded-[24px] font-bold hover:bg-orange-600 transition-all shadow-md active:scale-95 whitespace-nowrap">
                             ส่งรหัส
                         </button>
@@ -72,7 +72,7 @@
             </div>
 
             <div class="mt-12 flex flex-col space-y-3">
-                <button onclick="confirmChangePhone()" 
+                <button id="confirm-change-btn" type="button" 
                     class="w-full py-4 bg-phet-orange text-white rounded-[24px] text-xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-600 active:scale-95 transition-all">
                     บันทึกการเปลี่ยนแปลง
                 </button>
@@ -84,44 +84,6 @@
         </div>
     </main>
 
-    <script>
-        function gotoPage(page) {
-            window.location.href = page;
-        }
-        document.addEventListener("DOMContentLoaded", () => {
-            const savedPhone = localStorage.getItem('userPhone') || '0990990991';
-            document.getElementById('old-phone-input').value = savedPhone;
-        });
-
-        function sendOTP() {
-            const newPhone = document.getElementById('new-phone-input').value;
-            if (newPhone.length < 10) {
-                alert('กรุณากรอกเบอร์โทรศัพท์ใหม่ให้ถูกต้องก่อนครับ');
-                return;
-            }
-            
-            const btn = document.getElementById('send-otp-btn');
-            btn.innerText = 'ส่งแล้ว';
-            btn.disabled = true;
-            btn.className = "px-6 py-4 bg-gray-300 text-gray-500 rounded-[24px] font-bold cursor-not-allowed";
-            
-            alert('รหัส OTP ของคุณคือ: 123456 (ตัวอย่าง)');
-        }
-
-        function confirmChangePhone() {
-            const newPhone = document.getElementById('new-phone-input').value;
-            const otp = document.getElementById('otp-input').value;
-
-            if (newPhone.length === 10 && otp === '123456') {
-                localStorage.setItem('userPhone', newPhone);
-                
-                alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
-                
-                window.location.href = 'Profile.html'; 
-            } else {
-                alert('ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบเบอร์โทรหรือรหัส OTP');
-            }
-        }
-    </script>
+    <script type="module" src="../js/retel.js"></script>
 </body>
 </html>

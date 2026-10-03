@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+<body data-guard="admin" class="text-gray-800 font-sans flex h-screen overflow-hidden">
 
     <!-- Sidebar (คัดลอกมาจาก Admin_Room.html) -->
     <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
@@ -139,7 +139,7 @@
                 </button>
                 <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
                     <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
-                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                        <button onclick="window.location.href='../Login/Profile.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                             <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
                         </button>
@@ -260,189 +260,7 @@
     </main>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomNumParam = urlParams.get('room');
-        
-        let roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-        let roomData = roomsData.find(r => r.roomNum === roomNumParam);
-
-        const saveConfirmModal = document.getElementById('saveConfirmModal');
-        
-        // Image handling
-        const imageInput = document.getElementById('imageInput');
-        const addImageBtn = document.getElementById('addImageBtn');
-        const imageContainer = document.getElementById('imageContainer');
-        const imagePreviewModal = document.getElementById('imagePreviewModal');
-        const previewImage = document.getElementById('previewImage');
-
-        // Close modal on click
-        imagePreviewModal.addEventListener('click', () => {
-            imagePreviewModal.classList.add('hidden');
-        });
-
-        let currentImages = [];
-
-        function renderImages() {
-            imageContainer.innerHTML = '';
-            currentImages.forEach((imgSrc, index) => {
-                const div = document.createElement('div');
-                div.className = 'relative group';
-                div.innerHTML = `
-                    <img src="${imgSrc}" onclick="openImageModal(${index})" class="w-full h-48 object-cover rounded-[16px] cursor-pointer hover:opacity-90 transition-opacity border border-gray-100" alt="room preview">
-                    <button onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md hover:bg-red-600 transition-colors z-10 border-2 border-white">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    </button>
-                `;
-                imageContainer.appendChild(div);
-            });
-        }
-
-        window.removeImage = (index) => {
-            currentImages.splice(index, 1);
-            renderImages();
-        };
-
-        window.openImageModal = (index) => {
-            const src = currentImages[index];
-            previewImage.src = src;
-            imagePreviewModal.classList.remove('hidden');
-        };
-
-        addImageBtn.addEventListener('click', () => imageInput.click());
-
-        imageInput.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files); 
-            
-            if (files.length > 0) {
-                files.forEach(file => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const img = new Image();
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                const MAX_WIDTH = 800; 
-                                const MAX_HEIGHT = 800; 
-                                let width = img.width;
-                                let height = img.height;
-
-                                if (width > height) {
-                                    if (width > MAX_WIDTH) {
-                                        height *= MAX_WIDTH / width;
-                                        width = MAX_WIDTH;
-                                    }
-                                } else {
-                                    if (height > MAX_HEIGHT) {
-                                        width *= MAX_HEIGHT / height;
-                                        height = MAX_HEIGHT;
-                                    }
-                                }
-
-                                canvas.width = width;
-                                canvas.height = height;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, width, height);
-
-                                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                                currentImages.push(compressedDataUrl);
-                                renderImages(); 
-                            };
-                            img.src = event.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-            imageInput.value = ''; 
-        });
-
-        if (roomData) {
-            document.getElementById('tenantName').value = roomData.tenantName !== '-' ? roomData.tenantName : '';
-            document.getElementById('tenantPhone').value = roomData.phone !== '-' ? roomData.phone : '';
-            document.getElementById('roomNum').value = roomData.roomNum;
-            if (roomData.price) document.getElementById('roomPrice').value = roomData.price;
-            if (roomData.elecRate) document.getElementById('elecRate').value = roomData.elecRate;
-            if (roomData.waterRate) document.getElementById('waterRate').value = roomData.waterRate;
-            if (roomData.roomType) document.getElementById('roomType').value = roomData.roomType;
-            if (roomData.additionalInfo) document.getElementById('additionalInfo').value = roomData.additionalInfo;
-            
-            if (roomData.images && Array.isArray(roomData.images)) {
-                currentImages = [...roomData.images];
-            } else {
-                currentImages = ["https://images.unsplash.com/photo-1500382017468-9049fee74a62?auto=format&fit=crop&w=800&q=80"]; 
-            }
-            renderImages();
-        }
-
-        document.getElementById('saveBtn').addEventListener('click', () => {
-            const tenantName = document.getElementById('tenantName').value.trim();
-            const tenantPhone = document.getElementById('tenantPhone').value.trim();
-            
-            const hasTenant = (tenantName !== '' && tenantName !== '-') || (tenantPhone !== '' && tenantPhone !== '-');
-
-            if (hasTenant) {
-                const roomPrice = document.getElementById('roomPrice').value.trim();
-                const elecRate = document.getElementById('elecRate').value.trim();
-                const waterRate = document.getElementById('waterRate').value.trim();
-                const roomType = document.getElementById('roomType').value;
-
-                if (!roomPrice || !elecRate || !waterRate || roomType === 'เลือกประเภทห้อง') {
-                    alert('กรุณากรอก ราคาห้อง, ค่าไฟ, ค่าน้ำ และเลือกประเภทห้อง ให้ครบถ้วน เนื่องจากมีการระบุข้อมูลผู้เช่า');
-                    return; 
-                }
-            }
-
-            saveConfirmModal.classList.replace('hidden', 'flex');
-        });
-
-        document.getElementById('cancelSaveBtn').addEventListener('click', () => {
-            saveConfirmModal.classList.replace('flex', 'hidden');
-        });
-
-        document.getElementById('confirmSaveBtn').addEventListener('click', () => {
-            if (roomData) {
-                roomData.tenantName = document.getElementById('tenantName').value.trim() || '-';
-                roomData.phone = document.getElementById('tenantPhone').value.trim() || '-';
-                roomData.roomNum = document.getElementById('roomNum').value.trim();
-                roomData.price = document.getElementById('roomPrice').value.trim() || '-';
-                roomData.elecRate = document.getElementById('elecRate').value.trim();
-                roomData.waterRate = document.getElementById('waterRate').value.trim();
-                
-                const selectedType = document.getElementById('roomType').value;
-                roomData.roomType = (selectedType === 'เลือกประเภทห้อง') ? '-' : selectedType;
-                
-                roomData.additionalInfo = document.getElementById('additionalInfo').value.trim();
-                roomData.images = currentImages;
-
-                try {
-                    localStorage.setItem('dormRoomsData', JSON.stringify(roomsData));
-                    saveConfirmModal.classList.replace('flex', 'hidden');
-                    window.location.href = 'Admin_Room.html';
-                } catch (error) {
-                    alert('ไม่สามารถบันทึกได้ เนื่องจากขนาดรูปภาพรวมกันใหญ่เกินไป (เกินลิมิต 5MB ของระบบทดสอบ) กรุณาลบรูปบางส่วนออกครับ');
-                    console.error('LocalStorage Error:', error);
-                    saveConfirmModal.classList.replace('flex', 'hidden');
-                }
-            }
-        });
-
-        saveConfirmModal.addEventListener('click', (e) => {
-            if (e.target === saveConfirmModal) {
-                saveConfirmModal.classList.replace('flex', 'hidden');
-            }
-        });
-
-        document.getElementById('clearTenantBtn').addEventListener('click', () => {
-            document.getElementById('tenantName').value = '';
-            document.getElementById('tenantPhone').value = '';
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            window.location.reload();
-        });
-        
-        // โปรไฟล์และแจ้งเตือน
+        // Header / Dropdown UI Interactions
         const profileBtn = document.getElementById('profile-btn');
         const profileDropdown = document.getElementById('profile-dropdown');
         const notiBtn = document.getElementById('noti-btn');
@@ -468,7 +286,9 @@
                 notiDropdown.classList.add('hidden');
             }
         });
-    });
     </script>
+
+    <script type="module" src="../js/admin-edit-room.js"></script>
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

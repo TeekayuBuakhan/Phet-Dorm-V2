@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+<body data-guard="admin" class="text-gray-800 font-sans flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
@@ -140,7 +140,7 @@
                 </button>
                 <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
                     <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
-                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                        <button onclick="window.location.href='../Login/Profile.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                             <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
                         </button>
@@ -273,182 +273,15 @@
     </div>
 
     <script>
+        // ตัวข้อมูลห้องโหลดจากฐานข้อมูลผ่าน js/admin-rooms.js
         const modal = document.getElementById('modalOverlay');
         const deleteModal = document.getElementById('deleteModalOverlay');
         const infoModal = document.getElementById('infoModalOverlay');
-        const tbody = document.getElementById('roomsBody');
-      
-        let rowToDeleteNum = null;
-        let currentRoomInfo = '';
-
-        const defaultData = [
-            { roomNum: '23A', roomType: 'พัดลม', price: '1,900', tenantName: 'เจษฎา พรมภิบาล', phone: '066-089-0158', debt: 0 },
-            { roomNum: '12B', roomType: 'แอร์', price: '2,500', tenantName: 'นกกระจอกเทศ มะพร้าวอ่อน', phone: '082-222-2222', debt: 0 },
-            { roomNum: '67C', roomType: 'แอร์', price: '2,500', tenantName: 'มงคล ไดโนซอซา', phone: '054-432-1999', debt: 2 },
-            { roomNum: '69C', roomType: 'พัดลม', price: '1,900', tenantName: '-', phone: '-', debt: 0 }
-        ];
-
-        if (!localStorage.getItem('dormRoomsData')) {
-            localStorage.setItem('dormRoomsData', JSON.stringify(defaultData));
-        }
-
-        function getRoomsData() {
-            return JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-        }
-
-        function getRoomData(roomNum) {
-            const data = getRoomsData();
-            return data.find(r => r.roomNum === roomNum) || { roomNum, roomType: '-', price: '-', tenantName: '-', phone: '-', debt: 0 };
-        }
-
-        function renderTable() {
-            const data = getRoomsData();
-            tbody.innerHTML = ''; 
-          
-            data.forEach(room => {
-                const isOccupied = room.tenantName && room.tenantName.trim() !== '' && room.tenantName !== '-';
-                const statusHtml = isOccupied
-                    ? `<span class="inline-block bg-red-100 text-red-600 font-bold rounded-full px-3 py-1 text-xs border border-red-200">ไม่ว่าง</span>`
-                    : `<span class="inline-block bg-green-100 text-green-700 font-bold rounded-full px-3 py-1 text-xs border border-green-200">ว่าง</span>`;
-
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
-                tr.innerHTML = `
-                    <td class="py-4 px-4 font-bold text-gray-800">${room.roomNum}</td>
-                    <td class="py-4 px-4">${statusHtml}</td>
-                    <td class="py-4 px-4 text-gray-700">${room.roomType || '-'}</td>
-                    <td class="py-4 px-4 text-gray-700">${room.price || '-'}</td>
-                    <td class="py-4 px-4 text-gray-700">${room.tenantName}</td>
-                    <td class="py-4 px-4">
-                        <button class="btn-more text-gray-400 hover:text-phet-orange transition-colors flex justify-center w-full focus:outline-none" data-room="${room.roomNum}" title="ดูข้อมูล">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 pointer-events-none">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                            </svg>
-                        </button>
-                    </td>
-                    <td class="py-4 px-4">
-                        <button class="btn-delete text-gray-400 hover:text-red-500 transition-colors flex justify-center w-full focus:outline-none" data-room="${room.roomNum}" title="ลบห้อง">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 pointer-events-none">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        renderTable();
-
-        document.getElementById('openAddRoomBtn').addEventListener('click', () => modal.classList.replace('hidden','flex'));
-        document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
-      
-        function closeModal() {
-            modal.classList.replace('flex','hidden');
-            document.getElementById('newRoomNum').value = '';
-            document.getElementById('newRoomPrice').value = '';
-        }
-
-        document.getElementById('saveModalBtn').addEventListener('click', () => {
-            const num   = document.getElementById('newRoomNum').value.trim();
-            const type  = document.getElementById('newRoomType').value;
-            const price = document.getElementById('newRoomPrice').value.trim();
-            if (!num || !price) { alert('กรุณากรอกข้อมูลให้ครบถ้วน'); return; }
-          
-            const existingData = getRoomsData();
-            if (existingData.some(r => r.roomNum === num)) {
-                alert('มีเลขห้องนี้อยู่ในระบบแล้วครับ');
-                return;
-            }
-
-            existingData.push({ roomNum: num, roomType: type, price: price, tenantName: '-', phone: '-', debt: 0 });
-            localStorage.setItem('dormRoomsData', JSON.stringify(existingData));
- 
-            renderTable(); 
-            closeModal();
-        });
-
-        tbody.addEventListener('click', e => {
-            const deleteBtn = e.target.closest('.btn-delete');
-            if (deleteBtn) {
-                rowToDeleteNum = deleteBtn.getAttribute('data-room');
-                deleteModal.classList.replace('hidden', 'flex');
-                return;
-            }
-            const moreBtn = e.target.closest('.btn-more');
-            if (moreBtn) {
-                const roomNum = moreBtn.getAttribute('data-room');
-                currentRoomInfo = roomNum;
-              
-                const roomInfo = getRoomData(roomNum);
-              
-                document.getElementById('infoRoomNum').innerText = roomInfo.roomNum;
-                document.getElementById('infoTenantName').innerText = roomInfo.tenantName;
-                document.getElementById('infoPhone').innerText = roomInfo.phone;
-              
-                const debtBadge = document.getElementById('infoDebtBadge');
-                if (roomInfo.debt > 0) {
-                    debtBadge.innerText = `ค้างชำระ ${roomInfo.debt} บิล`;
-                    debtBadge.classList.replace('hidden', 'inline-block');
-                } else {
-                    debtBadge.classList.replace('inline-block', 'hidden');
-                }
-                infoModal.classList.replace('hidden', 'flex');
-            }
-        });
-
-        document.getElementById('closeDeleteBtn').addEventListener('click', () => {
-            deleteModal.classList.replace('flex', 'hidden');
-            rowToDeleteNum = null;
-        });
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            if (rowToDeleteNum) {
-                let data = getRoomsData();
-                data = data.filter(r => r.roomNum !== rowToDeleteNum);
-                localStorage.setItem('dormRoomsData', JSON.stringify(data));
-                renderTable(); 
-              
-                rowToDeleteNum = null;
-                deleteModal.classList.replace('flex', 'hidden');
-            }
-        });
-
-        document.getElementById('closeInfoBtn').addEventListener('click', () => {
-           infoModal.classList.replace('flex', 'hidden');
-        });
-
-        document.getElementById('editDataBtn').addEventListener('click', () => {
-            window.location.href = `Admin_editRoom.html?room=${currentRoomInfo}`;
-        });
 
         window.addEventListener('click', e => {
-            if (e.target === modal) closeModal();
-            if (e.target === deleteModal) {
-                deleteModal.classList.replace('flex', 'hidden');
-                rowToDeleteNum = null;
-            }
-            if (e.target === infoModal) {
-                infoModal.classList.replace('flex', 'hidden');
-            }
-        });
-
-        document.getElementById("searchInput").addEventListener("keyup", function() {
-            let input = this.value.toUpperCase();
-            let tbody = document.getElementById("roomsBody");
-            let tr = tbody.getElementsByTagName("tr");
-
-            for (let i = 0; i < tr.length; i++) {
-                let td = tr[i].getElementsByTagName("td")[0];
-                if (td) {
-                    let txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(input) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
+            if (e.target === modal) modal.classList.replace('flex', 'hidden');
+            if (e.target === deleteModal) deleteModal.classList.replace('flex', 'hidden');
+            if (e.target === infoModal) infoModal.classList.replace('flex', 'hidden');
         });
 
         // Dropdowns Top Nav
@@ -478,5 +311,7 @@
             }
         });
     </script>
+
+    <script type="module" src="../js/admin-rooms.js"></script>
 </body>
 </html>

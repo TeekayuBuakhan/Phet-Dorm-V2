@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
    <meta charset="UTF-8">
@@ -36,7 +36,7 @@
         .modal-blur { backdrop-filter: blur(4px); transition: all 0.3s ease; }
     </style>
 </head>
-<body class="bg-phet-bg min-h-screen text-gray-800 font-sans">
+<body data-guard="tenant" class="bg-phet-bg min-h-screen text-gray-800 font-sans">
 
     <header class="bg-phet-orange flex justify-between items-center px-8 h-16 shadow-[0_4px_12px_rgba(160,64,0,0.35)] relative z-30">
     <div class="w-1/3 flex justify-start">
@@ -200,8 +200,20 @@
 
     <script>
         let currentMethod = "";
-        let currentSlipImage = null; // <--- เพิ่มตัวแปรสำหรับเก็บรูปสลิป
-        let currentPayingMonthYear = ""; // ย้ายมารวมกันด้านบนสุด ป้องกัน Error
+        let currentSlipImage = null; // เก็บรูปสลิปที่เลือก (ใช้แสดงผล preview)
+        let currentSlipFile = null; // เก็บไฟล์จริงเพื่ออัปโหลดขึ้น Storage
+        let currentPayingMonthYear = ""; // ป้องกัน Error
+        let currentPayingBillId = null; // bill_id ของบิลที่กำลังชำระ
+        let myRoomNumber = null;
+
+        // สคริปต์ปกติเรียก import โมดูลไม่ได้ จึงโหลดผ่าน dynamic import
+        let billingApi = null;
+        function getBillingApi() {
+            if (!billingApi) {
+                billingApi = import('../js/billing.js');
+            }
+            return billingApi;
+        }
 
         const initDropdowns = () => {
             const btnNoti = document.getElementById('noti-btn'), dropNoti = document.getElementById('noti-dropdown');
@@ -272,8 +284,9 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function openPaymentModal(month, amount) {
+        function openPaymentModal(billId, month, amount) {
             currentSlipImage = null; // เคลียร์รูปสลิปทุกครั้งที่เปิด Modal ใหม่
+            currentSlipFile = null;
 
             if (!currentMethod) {
                 const errModal = document.getElementById('alert-error');
@@ -283,7 +296,8 @@
             }
 
             // ... โค้ดส่วนดึงข้อมูลมาแสดงยังเหมือนเดิม
-            currentPayingMonthYear = month; 
+            currentPayingMonthYear = month;
+            currentPayingBillId = billId; 
             document.getElementById('pay-modal-title').innerText = month;
             document.getElementById('pay-method-display').innerText = currentMethod;
             const content = document.getElementById('payment-content');
@@ -328,7 +342,8 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    currentSlipImage = e.target.result; // <--- เก็บรูปสลิปเอาไว้
+                    currentSlipImage = e.target.result; // เก็บรูปสลิปเอาไว้แสดงผล
+                    currentSlipFile = input.files[0];
                     document.getElementById('qr-box').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
                     document.getElementById('slip-label').innerHTML = `<span class="text-btn-green font-bold">เลือกไฟล์เรียบร้อยแล้ว ✅</span>`;
                 };
@@ -336,131 +351,143 @@
             }
         }
 
-        function confirmSubmit() {
-            closeModal('payment-modal');
-            
-            if (!currentPayingMonthYear) return;
-            
-            // แยกเดือนและปี เพื่อไปหาใน LocalStorage
-            const [month, year] = currentPayingMonthYear.split('/');
-            const billKey = `bill_${month}_${year}`;
-            
-            // หาเลขห้อง
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
-            const roomNum = myRoom ? myRoom.roomNum : "23A";
+        async function confirmSubmit() {
+            if (!currentPayingBillId) return;
 
-            // อัปเดตสถานะและเก็บสลิป
-            let billData = JSON.parse(localStorage.getItem(billKey));
-            if (billData && billData[roomNum]) {
-                billData[roomNum].status = "รออนุมัติการชำระเงิน";
-                
-                // บันทึกสลิปและวิธีการชำระ
-                if (currentMethod === 'ธนาคาร' && currentSlipImage) {
-                    billData[roomNum].slipImage = currentSlipImage;
-                    billData[roomNum].payMethod = 'โอนเงิน';
-                } else {
-                    billData[roomNum].payMethod = 'เงินสด';
+            const button = document.querySelector('#payment-content button.bg-btn-green');
+            if (button) button.disabled = true;
+
+            try {
+                const { submitPayment } = await getBillingApi();
+                await submitPayment(currentPayingBillId, {
+                    method: currentMethod,
+                    file: currentSlipFile,
+                });
+
+                closeModal('payment-modal');
+                currentPayingBillId = null;
+                currentPayingMonthYear = "";
+                currentMethod = "";
+                currentSlipFile = null;
+                currentSlipImage = null;
+
+                const label = document.getElementById('selected-method');
+                if (label) {
+                    label.innerText = 'เลือกช่องทางชำระ';
+                    label.className = "text-gray-400 text-xl";
                 }
 
-                localStorage.setItem(billKey, JSON.stringify(billData));
-                loadBillingData(); // รีโหลดตาราง
+                await loadBillingData();
+            } catch (error) {
+                alert(`ส่งข้อมูลการชำระเงินไม่สำเร็จ: ${error.message}`);
+            } finally {
+                if (button) button.disabled = false;
             }
         }
 
-        function loadTenantData() {
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
+        async function loadTenantData() {
+            const { supabase } = await import('../Client.js');
+            const { data: auth } = await supabase.auth.getUser();
+            if (!auth?.user) return;
 
-            if (myRoom) {
-                document.querySelectorAll('.display-room').forEach(el => el.innerText = myRoom.roomNum);
-                document.querySelectorAll('.display-name').forEach(el => el.innerText = myRoom.tenantName);
-                document.querySelectorAll('.display-elec').forEach(el => el.innerText = myRoom.elecRate || '8');
-                document.querySelectorAll('.display-water').forEach(el => el.innerText = myRoom.waterRate || '100 (เหมาจ่าย)');
+            const { data } = await supabase
+                .from('tenant')
+                .select('room_number')
+                .limit(1)
+                .maybeSingle();
+
+            myRoomNumber = data?.room_number ?? null;
+
+            if (myRoomNumber) {
+                const { data: room } = await supabase
+                    .from('room')
+                    .select('elec_rate, water_rate')
+                    .eq('room_number', myRoomNumber)
+                    .maybeSingle();
+
+                document.querySelectorAll('.display-room').forEach(el => el.innerText = myRoomNumber);
+                document.querySelectorAll('.display-name').forEach(el => el.innerText = auth.user.user_metadata?.full_name ?? "-");
+                document.querySelectorAll('.display-elec').forEach(el => el.innerText = room?.elec_rate ?? '8');
+                document.querySelectorAll('.display-water').forEach(el => el.innerText = room?.water_rate ? `${room.water_rate} (เหมาจ่าย)` : '100 (เหมาจ่าย)');
             } else {
                 document.querySelectorAll('.display-room').forEach(el => el.innerText = "ไม่มีห้อง");
-                document.querySelectorAll('.display-name').forEach(el => el.innerText = "เจษฎา พรมภิบาล");
+                document.querySelectorAll('.display-name').forEach(el => el.innerText = "-");
             }
         }
 
-        function loadBillingData() {
-            const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-            const myRoom = roomsData.find(room => room.tenantName && room.tenantName.includes("เจษฎา"));
-            const roomNum = myRoom ? myRoom.roomNum : "23A";
-            
+        async function loadBillingData() {
             const tbody = document.getElementById('tenant-bill-body');
-            tbody.innerHTML = ''; 
-            
-            let totalOwed = 0;
-            let hasBills = false;
-            
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('bill_')) {
-                    const [, month, year] = key.split('_');
-                    try {
-                        const billData = JSON.parse(localStorage.getItem(key));
-                        
-                        if (billData && billData[roomNum] && billData[roomNum].isSent) {
-                            hasBills = true;
-                            const bill = billData[roomNum];
-                            
-                            let statusColor = "text-red-500";
-                            let statusText = bill.status === "รอชำระเงิน" ? "ค้างชำระ" : bill.status;
-                            let actionHtml = '';
-                            
-                            if (bill.status === "รอชำระเงิน") {
-                                statusColor = "text-red-500";
-                                totalOwed += bill.total;
-                                actionHtml = `<button onclick="openPaymentModal('${month}/${year}', '${bill.total.toLocaleString()}')" class="bg-[#FCE7F3] text-[#D81B60] px-8 py-2 rounded-full font-bold hover:scale-105 transition-all shadow-sm">ชำระเงิน</button>`;
-                            } else if (bill.status === "รออนุมัติการชำระเงิน") {
-                                statusColor = "text-phet-orange";
-                                actionHtml = `<span class="text-gray-400 font-medium px-4">รอตรวจสอบ</span>`;
-                            } else if (bill.status === "ชำระเงินแล้ว") {
-                                statusColor = "text-btn-green";
-                                actionHtml = `<span class="text-btn-green font-bold px-4 whitespace-nowrap">✓ ชำระเรียบร้อย</span>`;
-                            }
-                            
-                            const tr = document.createElement('tr');
-                            tr.className = "border-b last:border-0 hover:bg-gray-50/50 transition-colors";
-                            tr.innerHTML = `
-                                <td class="py-6">${month} ${year}</td>
-                                <td class="py-6 text-center">${bill.total.toLocaleString()}</td>
-                                <td class="py-6 text-center ${statusColor} font-bold">${statusText}</td>
-                                
-                                <td class="py-6 text-center">
-                                    ${actionHtml}
-                                </td>
-                                
-                                <td class="py-6 text-center pr-6">
-                                    <button onclick="openBillDetail('${month}/${year}', '${statusText}', '${bill.total.toLocaleString()}', '(${bill.elecUnit || 0} หน่วย)', '${bill.elecCost || 0}')" class="inline-flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 hover:text-[#CF4B00] transition-colors" viewBox="0 0 20 22" fill="none">
-                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.84878 3.9921e-05C4.89683 5.9921e-05 4.94559 7.98561e-05 4.99508 7.98561e-05H14.5051C14.5546 7.98561e-05 14.6033 5.9921e-05 14.6514 3.9921e-05C15.6681 -0.000400079 16.3679 -0.000710145 16.9572 0.20435C18.0702 0.59161 18.9343 1.48726 19.3047 2.61559C19.5008 3.21271 19.5005 3.92254 19.5001 4.97655C19.5001 5.02372 19.5001 5.07158 19.5001 5.12014V19.1243C19.5001 20.5895 17.7731 21.4618 16.6357 20.421C16.5562 20.3483 16.444 20.3483 16.3645 20.421L15.8814 20.8631C14.9532 21.7124 13.547 21.7124 12.6188 20.8631C12.2638 20.5382 11.7364 20.5382 11.3814 20.8631C10.4532 21.7124 9.04696 21.7124 8.11876 20.8631C7.76376 20.5382 7.23637 20.5382 6.88138 20.8631C5.95319 21.7124 4.54694 21.7124 3.61875 20.8631L3.13566 20.421C3.05618 20.3483 2.94395 20.3483 2.86448 20.421C1.72705 21.4618 7.28134e-05 20.5895 7.28134e-05 19.1243V5.12014C7.28134e-05 5.07158 5.27591e-05 5.02372 3.27591e-05 4.97655C-0.000347241 3.92255 -0.000607222 3.21271 0.195453 2.61559C0.565913 1.48726 1.43002 0.59161 2.54298 0.20435C3.1323 -0.000710145 3.83203 -0.000400079 4.84878 3.9921e-05ZM4.99508 1.50008C3.774 1.50008 3.3534 1.51057 3.03593 1.62103C2.37655 1.85047 1.84919 2.38728 1.6206 3.0835C1.50951 3.42183 1.50007 3.86796 1.50007 5.12014V19.1243C1.50007 19.2433 1.55999 19.3161 1.63517 19.3509C1.67433 19.369 1.71264 19.3737 1.74455 19.3694C1.77269 19.3656 1.8091 19.3535 1.85185 19.3144C2.50453 18.7171 3.49561 18.7171 4.14828 19.3144L4.63138 19.7565C4.98637 20.0813 5.51377 20.0813 5.86875 19.7565C6.79694 18.9071 8.20316 18.9071 9.13136 19.7565C9.48636 20.0813 10.0138 20.0813 10.3688 19.7565C11.297 18.9071 12.7032 18.9071 13.6314 19.7565C13.9864 20.0813 14.5138 20.0813 14.8688 19.7565L15.3519 19.3144C16.0046 18.7171 16.9956 18.7171 17.6483 19.3144C17.6911 19.3535 17.7275 19.3656 17.7556 19.3694C17.7875 19.3737 17.8258 19.369 17.865 19.3509C17.9402 19.3161 18.0001 19.2434 18.0001 19.1243V5.12014C18.0001 3.86797 17.9907 3.42183 17.8796 3.0835C17.651 2.38728 17.1236 1.85047 16.4642 1.62103C16.1468 1.51057 15.7262 1.50008 14.5051 1.50008H4.99508ZM4.00007 6.25008C4.00007 5.83587 4.33585 5.50008 4.75007 5.50008H5.25007C5.66428 5.50008 6.00007 5.83587 6.00007 6.25008C6.00007 6.6643 5.66428 7.00008 5.25007 7.00008H4.75007C4.33585 7.00008 4.00007 6.6643 4.00007 6.25008ZM7.50007 6.25008C7.50007 5.83587 7.83586 5.50008 8.25006 5.50008H14.7501C15.1643 5.50008 15.5001 5.83587 15.5001 6.25008C15.5001 6.6643 15.1643 7.00008 14.7501 7.00008H8.25006C7.83586 7.00008 7.50007 6.6643 7.50007 6.25008ZM4.00007 9.7501C4.00007 9.3359 4.33585 9.0001 4.75007 9.0001H5.25007C5.66428 9.0001 6.00007 9.3359 6.00007 9.7501C6.00007 10.1643 5.66428 10.5001 5.25007 10.5001H4.75007C4.33585 10.5001 4.00007 10.1643 4.00007 9.7501ZM7.50007 9.7501C7.50007 9.3359 7.83586 9.0001 8.25006 9.0001H14.7501C15.1643 9.0001 15.5001 9.3359 15.5001 9.7501C15.5001 10.1643 15.1643 10.5001 14.7501 10.5001H8.25006C7.83586 10.5001 7.50007 10.1643 7.50007 9.7501ZM4.00007 13.2501C4.00007 12.8359 4.33585 12.5001 4.75007 12.5001H5.25007C5.66428 12.5001 6.00007 12.8359 6.00007 13.2501C6.00007 13.6643 5.66428 14.0001 5.25007 14.0001H4.75007C4.33585 14.0001 4.00007 13.6643 4.00007 13.2501ZM7.50007 13.2501C7.50007 12.8359 7.83586 12.5001 8.25006 12.5001H14.7501C15.1643 12.5001 15.5001 12.8359 15.5001 13.2501C15.5001 13.6643 15.1643 14.0001 14.7501 14.0001H8.25006C7.83586 14.0001 7.50007 13.6643 7.50007 13.2501Z" fill="currentColor"/>
-                                        </svg>
-                                    </button>
-                                </td>
-                            `;
-                            tbody.appendChild(tr);
-                        }
-                    } catch (err) {
-                        console.error("Invalid bill format in localStorage:", key);
-                    }
-                }
+            tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>`;
+
+            let bills = [];
+            try {
+                const { loadBills, STATUS_PENDING, STATUS_SUBMITTED, STATUS_PAID } = await getBillingApi();
+                bills = await loadBills(myRoomNumber);
+                window.__billStatus = { STATUS_PENDING, STATUS_SUBMITTED, STATUS_PAID };
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-red-500">โหลดข้อมูลไม่สำเร็จ: ${error.message}</td></tr>`;
+                return;
             }
-            
-            if (!hasBills) {
+
+            const { STATUS_PENDING, STATUS_SUBMITTED, STATUS_PAID } = window.__billStatus;
+            tbody.innerHTML = '';
+            let totalOwed = 0;
+
+            bills.forEach(bill => {
+                let statusColor = "text-red-500";
+                let statusText = bill.status === STATUS_PENDING ? "ค้างชำระ" : bill.status;
+                let actionHtml = '';
+
+                if (bill.status === STATUS_PENDING) {
+                    statusColor = "text-red-500";
+                    totalOwed += bill.total;
+                    actionHtml = `<button onclick="openPaymentModal('${bill.billId}', '${bill.monthYear}', '${bill.total.toLocaleString()}')" class="bg-[#FCE7F3] text-[#D81B60] px-8 py-2 rounded-full font-bold hover:scale-105 transition-all shadow-sm">ชำระเงิน</button>`;
+                } else if (bill.status === STATUS_SUBMITTED) {
+                    statusColor = "text-phet-orange";
+                    actionHtml = `<span class="text-gray-400 font-medium px-4">รอตรวจสอบ</span>`;
+                } else if (bill.status === STATUS_PAID) {
+                    statusColor = "text-btn-green";
+                    actionHtml = `<span class="text-btn-green font-bold px-4 whitespace-nowrap">✓ ชำระเรียบร้อย</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b last:border-0 hover:bg-gray-50/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-6">${bill.monthYear}</td>
+                    <td class="py-6 text-center">${bill.total.toLocaleString()}</td>
+                    <td class="py-6 text-center ${statusColor} font-bold">${statusText}</td>
+
+                    <td class="py-6 text-center">
+                        ${actionHtml}
+                    </td>
+
+                    <td class="py-6 text-center pr-6">
+                        <button onclick="openBillDetail('${bill.monthYear}', '${statusText}', '${bill.total.toLocaleString()}', '(${bill.elecUnit} หน่วย)', '${bill.elecCost}')" class="inline-flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 hover:text-[#CF4B00] transition-colors" viewBox="0 0 20 22" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10 18.5a8.5 8.5 0 1 0 0-17 8.5 8.5 0 0 0 0 17Zm1-12.5a1 1 0 1 0-2 0v4.06l-2.06-.62a1 1 0 0 0-.6 1.88l2.06.62v1.56l-.72.22a1 1 0 1 0 .55 1.93L10 14.6l1.77.55a1 1 0 1 0 .55-1.93l-.72-.22v-1.56l2.06-.62a1 1 0 1 0-.6-1.88L11 9.56V6Z"/>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (bills.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-gray-500">ยังไม่มีรายการบิลค่าเช่า</td></tr>`;
             }
-            
+
             const debtDisplay = document.getElementById('total-debt-display');
-            if(debtDisplay) debtDisplay.innerText = totalOwed.toLocaleString();
+            if (debtDisplay) debtDisplay.innerText = totalOwed.toLocaleString();
         }
 
+
         // --- ส่วนรันคำสั่งเมื่อหน้าเว็บโหลดเสร็จ ---
-        document.addEventListener("DOMContentLoaded", () => {
-            loadTenantData();
+        document.addEventListener("DOMContentLoaded", async () => {
             initDropdowns();
-            loadBillingData();
+
+            // ต้องโหลดเลขห้องให้เสร็จก่อน จึงจะดึงบิลของห้องตัวเองได้
+            await loadTenantData();
+            await loadBillingData();
 
             // จัดการระบบเปลี่ยนหน้า (Navigation)
             const nav = document.getElementById("main-nav");
@@ -500,5 +527,7 @@
             });
         });
     </script>
+
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

@@ -51,7 +51,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+<body data-guard="admin" class="text-gray-800 font-sans flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
@@ -140,7 +140,7 @@
                 </button>
                 <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
                     <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
-                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                        <button onclick="window.location.href='../Login/Profile.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                             <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
                         </button>
@@ -163,7 +163,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
-                    <input type="text" id="searchInput" placeholder="ค้นหาเลขห้อง" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-phet-orange focus:border-phet-orange block w-full pl-10 p-2.5 shadow-sm outline-none transition">
+                    <input type="text" id="searchInput" oninput="renderTable()" placeholder="ค้นหาเลขห้อง / ประเภท / รายละเอียด" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-xl focus:ring-phet-orange focus:border-phet-orange block w-full pl-10 p-2.5 shadow-sm outline-none transition">
                 </div>
                 <button onclick="renderTable()" class="bg-phet-orange hover:bg-orange-600 text-white font-medium rounded-xl px-6 py-2.5 text-sm transition shadow-sm">
                     ค้นหา
@@ -248,14 +248,30 @@
     <script>
         let repairData = [];
         let currentRepairId = null;
+        let isLoadingReports = true;
 
-        function loadReports() {
-            repairData = JSON.parse(localStorage.getItem('phetDromRepairData')) || [];
-            renderTable();
+        let reportsApi = null;
+        function getReportsApi() {
+            if (!reportsApi) {
+                reportsApi = import('../js/reports.js');
+            }
+            return reportsApi;
         }
 
-        function saveData() {
-            localStorage.setItem('phetDromRepairData', JSON.stringify(repairData));
+        async function loadReports() {
+            isLoadingReports = true;
+            renderTable();
+
+            try {
+                const { loadReports: fetchReports } = await getReportsApi();
+                repairData = await fetchReports();
+            } catch (error) {
+                repairData = [];
+                alert(`โหลดข้อมูลการแจ้งเรื่องไม่สำเร็จ: ${error.message}`);
+            }
+
+            isLoadingReports = false;
+            renderTable();
         }
 
         function renderTable() {
@@ -263,8 +279,17 @@
             const searchInput = document.getElementById("searchInput").value.trim();
             tbody.innerHTML = ""; 
 
+            if (isLoadingReports) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-gray-400 text-center">กำลังโหลดข้อมูล...</td></tr>`;
+                return;
+            }
+
+            const keyword = searchInput.toLowerCase();
             const filteredData = repairData.filter(item => 
-                searchInput === "" || "23A".includes(searchInput)
+                keyword === "" 
+                || (item.roomNumber ?? '').toLowerCase().includes(keyword)
+                || (item.type ?? '').toLowerCase().includes(keyword)
+                || (item.detail ?? '').toLowerCase().includes(keyword)
             );
 
             if (filteredData.length === 0) {
@@ -283,10 +308,10 @@
                 tr.className = "border-b border-gray-50 hover:bg-gray-50/50 transition-colors text-sm";
                 tr.innerHTML = `
                     <td class="py-4 px-6 text-gray-600">${item.date}</td>
-                    <td class="py-4 px-6 font-bold text-gray-800">23A</td> 
+                    <td class="py-4 px-6 font-bold text-gray-800">${item.roomNumber ?? '-'}</td> 
                     <td class="py-4 px-6 text-gray-600">${item.type}</td>
                     <td class="py-4 px-6">
-                        <span onclick="openRepairPopup(${item.id})" 
+                        <span onclick="openRepairPopup('${item.id}')" 
                             class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all hover:shadow-sm border ${statusClass}">
                             ${statusText}
                         </span>
@@ -351,14 +376,16 @@
             }
         });
 
-        function updateStatus(newStatus) {
-            const idx = repairData.findIndex(r => r.id === currentRepairId);
-            if (idx !== -1) {
-                repairData[idx].status = newStatus;
-                repairData[idx].action = newStatus; 
-                saveData();
-                renderTable();
+        async function updateStatus(newStatus) {
+            if (currentRepairId === null) return;
+
+            try {
+                const { updateReportStatus } = await getReportsApi();
+                await updateReportStatus(currentRepairId, newStatus);
                 closePopup();
+                await loadReports();
+            } catch (error) {
+                alert(`อัปเดตสถานะไม่สำเร็จ: ${error.message}`);
             }
         }
 
@@ -399,5 +426,7 @@
         };
 
     </script>
+
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

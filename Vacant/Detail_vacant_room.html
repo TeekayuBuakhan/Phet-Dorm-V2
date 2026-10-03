@@ -81,68 +81,6 @@
     </main>
  
 <script>
-    // โหลดข้อมูลเมื่อเปิดหน้า
-    document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomNum = urlParams.get('room');
-
-        if (!roomNum) {
-            alert("ไม่พบข้อมูลห้อง กรุณาเลือกห้องใหม่");
-            window.location.href = 'vacant_room.html';
-            return;
-        }
-
-        const roomsData = JSON.parse(localStorage.getItem('dormRoomsData')) || [];
-        const roomInfo = roomsData.find(r => r.roomNum === roomNum);
-
-        if (roomInfo) {
-            // ----- ดึงข้อมูลทั่วไปของห้อง -----
-            document.getElementById('detailRoomNum').innerHTML = `<b>ห้อง :</b> ${roomInfo.roomNum}`;
-            document.getElementById('detailRoomType').innerHTML = `<b>ประเภท :</b> ${roomInfo.roomType || '-'}`;
-            document.getElementById('detailRoomPrice').innerHTML = `<b>ค่าห้อง :</b> ${roomInfo.price || '-'} บาท`;
-            
-            // ----- ดึงข้อมูล ค่าไฟ ค่าน้ำ -----
-            document.getElementById('detailElecRate').innerHTML = `<b>ค่าไฟ :</b> ${roomInfo.elecRate ? roomInfo.elecRate + ' บาท / หน่วย' : '-'}`;
-            document.getElementById('detailWaterRate').innerHTML = `<b>ค่าน้ำ :</b> ${roomInfo.waterRate || '-'}`;
-
-            // ----- ดึงข้อมูล สิ่งของเพิ่มเติม -----
-            const addInfoContainer = document.getElementById('detailAdditionalInfo');
-            if (roomInfo.additionalInfo && roomInfo.additionalInfo.trim() !== '') {
-                // แยกข้อความด้วยการขึ้นบรรทัดใหม่ (Enter) แล้วสร้างเป็น <li>
-                const items = roomInfo.additionalInfo.split('\n').filter(item => item.trim() !== '');
-                addInfoContainer.innerHTML = items.map(item => `<li>${item.trim()}</li>`).join('');
-            } else {
-                // ถ้าไม่ได้กรอกอะไรไว้ ให้ขึ้นว่า ไม่มีข้อมูล
-                addInfoContainer.innerHTML = '<li class="text-gray-400 list-none">- ไม่มีข้อมูล -</li>';
-            }
-
-            // ----- ดึงข้อมูลรูปภาพมาแสดง และเพิ่ม Event Click -----
-            const imageContainer = document.getElementById('detailImageContainer');
-            imageContainer.innerHTML = ''; // เคลียร์รูปเก่าทิ้ง
-
-            if (roomInfo.images && roomInfo.images.length > 0) {
-                roomInfo.images.forEach(imgSrc => {
-                    const img = document.createElement('img');
-                    img.src = imgSrc;
-                    img.className = "rounded-2xl object-cover w-full h-52 cursor-pointer hover:opacity-90 transition-opacity shadow-md";
-                    img.onclick = () => openImagePreview(imgSrc); 
-                    imageContainer.appendChild(img);
-                });
-            } else {
-                // ถ้าไม่มีรูป ใช้รูปภาพ default
-                const defaultImg = document.createElement('img');
-                defaultImg.src = "../img/home.jpg";
-                defaultImg.className = "rounded-2xl object-cover w-full h-52 cursor-pointer hover:opacity-90 transition-opacity shadow-md";
-                defaultImg.onclick = () => openImagePreview("../img/home.jpg");
-                imageContainer.appendChild(defaultImg);
-            }
-
-        } else {
-            alert("ไม่พบข้อมูลห้องนี้ในระบบ");
-            window.location.href = 'vacant_room.html';
-        }
-    });
-
     // ----- ฟังก์ชันสำหรับเปิด-ปิดรูปภาพ -----
     function openImagePreview(src) {
         document.getElementById('previewImage').src = src;
@@ -169,6 +107,8 @@
         document.getElementById("contactModal").classList.add("hidden");
     }
 </script>
+
+<script type="module" src="../js/vacant-detail.js"></script>
  
     <div id="contactModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-3xl shadow-2xl p-10 w-[90%] max-w-2xl relative">

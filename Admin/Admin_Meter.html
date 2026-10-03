@@ -79,7 +79,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 font-sans flex h-screen overflow-hidden">
+<body data-guard="admin" class="text-gray-800 font-sans flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
     <aside class="w-64 bg-sidebar-bg border-r border-gray-200 flex flex-col justify-between h-full py-6 px-4 shrink-0">
@@ -168,7 +168,7 @@
                 </button>
                 <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-64 z-50">
                     <div class="bg-white rounded-[20px] shadow-xl border border-gray-100 overflow-hidden p-2">
-                        <button onclick="window.location.href='Profile_Admin.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
+                        <button onclick="window.location.href='../Login/Profile.html'" class="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors text-gray-700">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.89 1.147l-3.102.933a.675.675 0 01-.836-.836l.932-3.102a4.5 4.5 0 011.147-1.89L16.862 4.487zM16.862 4.487L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                             <span class="font-medium text-sm">แก้ไขข้อมูลส่วนตัว</span>
                         </button>
@@ -234,7 +234,7 @@
                             </button>
                         </div>
                     </div>
-                    <button class="bg-phet-orange text-white px-6 py-2.5 rounded-full font-medium hover:bg-orange-600 hover:shadow-md transition shadow-sm">
+                    <button id="meter-apply-btn" class="bg-phet-orange text-white px-6 py-2.5 rounded-full font-medium hover:bg-orange-600 hover:shadow-md transition shadow-sm">
                         เลือก
                     </button>
                 </div>
@@ -245,9 +245,9 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         </div>
-                        <input type="text" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-full focus:ring-phet-orange focus:border-phet-orange block w-full pl-10 p-2.5 shadow-sm outline-none" placeholder="ค้นหาเลขห้อง">
+                        <input type="text" id="meter-search" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-full focus:ring-phet-orange focus:border-phet-orange block w-full pl-10 p-2.5 shadow-sm outline-none" placeholder="ค้นหาเลขห้อง">
                     </div>
-                    <button class="bg-phet-orange text-white px-6 py-2 rounded-full font-medium hover:bg-orange-600 transition shadow-sm whitespace-nowrap">
+                    <button id="meter-search-btn" class="bg-phet-orange text-white px-6 py-2 rounded-full font-medium hover:bg-orange-600 transition shadow-sm whitespace-nowrap">
                         ค้นหา
                     </button>
                 </div>
@@ -266,51 +266,9 @@
                             <th class="py-5 px-6 font-medium w-[15%]"></th> <!-- ช่องว่างสำหรับปุ่ม -->
                         </tr>
                     </thead>
-                    <tbody class="text-gray-600">
-                        <!-- แถว 1 -->
-                        <tr class="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
-                            <td class="py-4 px-6 font-medium">23A</td>
-                            <td class="py-4 px-6">0</td>
-                            <td class="py-4 px-6">
-                                <input type="text" class="meter-input" value="" maxlength="4" placeholder="____">
-                            </td>
-                            <td class="py-4 px-6 text-gray-400">0</td>
-                            <td class="py-4 px-6 text-red-500 font-medium">0</td>
-                            <td class="py-4 px-6 pr-8 text-right">
-                                <button class="bg-btn-green text-white px-6 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 transition shadow-sm">
-                                    บันทึก
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- แถว 2 -->
-                        <tr class="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
-                            <td class="py-4 px-6 font-medium">12B</td>
-                            <td class="py-4 px-6">0</td>
-                            <td class="py-4 px-6">
-                                <input type="text" class="meter-input" value="" maxlength="4" placeholder="____">
-                            </td>
-                            <td class="py-4 px-6 text-gray-400">0</td>
-                            <td class="py-4 px-6 text-red-500 font-medium">0</td>
-                            <td class="py-4 px-6 pr-8 text-right">
-                                <button class="bg-btn-green text-white px-6 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 transition shadow-sm">
-                                    บันทึก
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- แถว 3 -->
-                        <tr class="hover:bg-gray-50/30 transition-colors">
-                            <td class="py-4 px-6 font-medium">67C</td>
-                            <td class="py-4 px-6">0</td>
-                            <td class="py-4 px-6">
-                                <input type="text" class="meter-input" value="" maxlength="4" placeholder="____">
-                            </td>
-                            <td class="py-4 px-6 text-gray-400">0</td>
-                            <td class="py-4 px-6 text-red-500 font-medium">0</td>
-                            <td class="py-4 px-6 pr-8 text-right">
-                                <button class="bg-btn-green text-white px-6 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 transition shadow-sm">
-                                    บันทึก
-                                </button>
-                            </td>
+<tbody id="meter-body" class="text-gray-600">
+                        <tr>
+                            <td colspan="6" class="py-10 text-center text-gray-400">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -387,5 +345,8 @@
             });
         });
     </script>
+
+    <script type="module" src="../js/admin-meter.js"></script>
+    <script type="module" src="../js/guard.js"></script>
 </body>
 </html>

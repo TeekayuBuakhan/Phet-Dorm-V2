@@ -55,7 +55,8 @@
             </button>
 
             <h2 class="text-3xl font-bold text-gray-800 mb-4 mt-4">ยืนยันรหัส OTP</h2>
-            <p class="text-gray-500 mb-6 text-sm">กรุณากรอกรหัส 6 หลักที่ส่งไปยังเบอร์มือถือของคุณ</p>
+            <p class="text-gray-500 mb-6 text-sm">กรุณากรอกรหัส 6 หลักที่ส่งไปยังอีเมลของคุณ</p>
+            <p id="targetEmail" class="text-sm font-bold text-[#D35400] mb-6 break-all"></p>
 
             <div id="otp-container" class="flex justify-between gap-2 mb-8">
                 <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
@@ -66,47 +67,18 @@
                 <input type="text" maxlength="1" inputmode="numeric" class="otp-input bg-gray-300 w-12 h-14 border-2 border-gray-200 rounded-xl text-center text-2xl font-bold outline-none transition-all">
             </div>
 
-            <button onclick="checkOTP()" class="w-full bg-[#D35400] text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform hover:scale-[1.02] active:scale-95 mb-6">
+            <p id="formMessage" class="hidden mb-4 text-sm font-medium"></p>
+
+            <button type="button" id="submitBtn" class="w-full bg-[#D35400] text-white py-4 rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform hover:scale-[1.02] active:scale-95 mb-6">
                 ยืนยันรหัส
             </button>
 
             <p class="text-gray-400 text-sm">
-                ไม่ได้รับรหัส? <button class="text-phet-orange font-bold hover:underline">ส่งอีกครั้ง</button>
+                ไม่ได้รับรหัส? <button type="button" id="resendBtn" class="text-phet-orange font-bold hover:underline">ส่งอีกครั้ง</button>
             </p>
         </div>
     </main>
 
-    <script>
-        const inputs = document.querySelectorAll('.otp-input');
-
-        inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                // กรองเอาเฉพาะตัวเลข
-                e.target.value = e.target.value.replace(/\D/g, '');
-                
-                if (e.target.value.length > 0 && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    inputs[index - 1].focus();
-                }
-            });
-        });
-
-        function checkOTP() {
-            let otpValue = "";
-            inputs.forEach(input => otpValue += input.value);
-
-            if (otpValue.length < 6) {
-                alert("กรุณากรอกรหัสให้ครบ 6 หลัก");
-            } else {
-                // ไปหน้าเปลี่ยนรหัสผ่าน
-                window.location.href = 'ResetPassword.html';
-            }
-        }
-    </script>
+    <script type="module" src="../js/otp.js"></script>
 </body>
 </html>

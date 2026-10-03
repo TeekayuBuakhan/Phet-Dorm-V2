@@ -110,13 +110,18 @@
             
             <div class="flex items-center space-x-3 text-lg px-4">
                 <span class="font-bold text-gray-700 whitespace-nowrap">ชื่อ - สกุล :</span>
-                <span class="text-gray-600">เจษฎา พรมภิบาล</span>
+                <span id="display-name" class="text-gray-600">-</span>
+            </div>
+
+            <div class="flex items-center space-x-3 text-lg px-4">
+                <span class="font-bold text-gray-700 whitespace-nowrap">อีเมล :</span>
+                <span id="display-email" class="text-gray-600 break-all">-</span>
             </div>
 
             <div class="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100 w-full">
                 <div class="flex items-center space-x-2 text-lg whitespace-nowrap">
                     <span class="font-bold text-gray-700">เบอร์โทรศัพท์ :</span>
-                    <span id="display-phone" class="text-gray-600">0841409452</span> 
+                    <span id="display-phone" class="text-gray-600">-</span> 
                 </div>
                 
                 <button onclick="gotoPage('ReTel.html')" class="px-4 py-1.5 bg-white border border-gray-200 text-phet-orange rounded-xl font-bold hover:scale-105 transition-all active:scale-95 whitespace-nowrap">
@@ -124,16 +129,18 @@
                 </button>
             </div>
             
-            <button onclick="gotoPage('Re_Password.html')" class="w-full py-3 border-2 border-phet-orange text-phet-orange rounded-2xl font-bold hover:bg-phet-orange hover:text-white transition-all active:scale-95 mt-2">
+            <button onclick="gotoPage('ForgotPassword.html')" class="w-full py-3 border-2 border-phet-orange text-phet-orange rounded-2xl font-bold hover:bg-phet-orange hover:text-white transition-all active:scale-95 mt-2">
                 เปลี่ยนรหัสผ่าน
             </button>
         </div>
 
-        <button onclick="alert('บันทึกข้อมูลเรียบร้อยแล้ว'); gotoPage('Main_Tenant.html')" class="w-full py-4 bg-phet-orange text-white rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform active:scale-95">
+        <button id="saveBtn" class="w-full py-4 bg-phet-orange text-white rounded-2xl font-bold text-xl shadow-lg hover:bg-[#A04000] transition transform active:scale-95">
             บันทึกข้อมูล
         </button>
 
     </div> </main>
+
+    <script type="module" src="../js/profile.js"></script>
 
     <script>
         const initMenus = () => {
@@ -180,12 +187,6 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             initMenus();
-
-            const savedPhone = localStorage.getItem('userPhone');
-            const phoneDisplay = document.getElementById('display-phone');
-            if (savedPhone && phoneDisplay) {
-                phoneDisplay.innerText = savedPhone;
-            }
 
             if (document.fonts) await document.fonts.ready;
 
