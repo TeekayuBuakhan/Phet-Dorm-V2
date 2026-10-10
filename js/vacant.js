@@ -39,6 +39,8 @@ function formatPrice(price) {
 }
 
 function renderRooms(container, rooms) {
+    container.innerHTML = '';
+
     if (rooms.length === 0) {
         container.innerHTML = '<p class="col-span-full text-center text-2xl font-bold text-gray-800">ขณะนี้ยังไม่มีห้องว่างครับ</p>';
         return;
@@ -78,7 +80,6 @@ function renderRooms(container, rooms) {
 
 async function loadVacantRooms() {
     const container = document.getElementById('vacantRoomContainer');
-    container.innerHTML = '<p class="col-span-full text-center text-xl text-gray-500">กำลังโหลดข้อมูลห้องว่าง...</p>';
 
     const { data, error } = await supabase
         .from('vacant_rooms')

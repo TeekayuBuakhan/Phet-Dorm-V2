@@ -5,7 +5,7 @@
 // อีเมลต้องถูกส่งต่อผ่าน query string เพราะหน้าถัดไปต้องใช้ค่านี้ซ้ำ
 
 import { validateEmail } from './auth.js';
-import { requestOtp } from './dev-otp.js';
+import { requestOtp, isDevOtpMode } from './dev-otp.js';
 import { markInvalid, setBusy, setMessage } from './ui.js';
 
 const form = document.getElementById('forgotPasswordForm');
@@ -32,7 +32,13 @@ form.addEventListener('submit', async (event) => {
     try {
         await requestOtp(email, 'recovery');
 
-        setMessage(messageBox, 'ส่งรหัสยืนยันไปที่อีเมลแล้ว กำลังพาไปหน้ากรอกรหัส...', 'success');
+        setMessage(
+            messageBox,
+            isDevOtpMode()
+                ? 'แสดงรหัสยืนยันแล้ว กำลังพาไปหน้ากรอกรหัส...'
+                : 'ส่งรหัสยืนยันไปที่อีเมลแล้ว กำลังพาไปหน้ากรอกรหัส...',
+            'success',
+        );
 
         window.location.href = `otp.html?type=recovery&email=${encodeURIComponent(email)}`;
     } catch (error) {

@@ -6,7 +6,7 @@
 // ถ้าไม่มีอีเมลใน query string แปลว่าเข้าหน้านี้ตรงๆ ให้กลับไปหน้าลืมรหัสผ่าน
 
 import { OTP_LENGTH } from './auth.js';
-import { clearOtp as forgetLocalOtp, confirmOtp, requestOtp } from './dev-otp.js';
+import { clearOtp as forgetLocalOtp, confirmOtp, isDevOtpMode, requestOtp } from './dev-otp.js';
 import { setBusy, setMessage } from './ui.js';
 
 const inputs = [...document.querySelectorAll('.otp-input')];
@@ -27,6 +27,16 @@ if (!email) {
     resendBtn.disabled = true;
 } else {
     targetEmailLabel.textContent = email;
+}
+
+const otpHint = document.getElementById('otpHint');
+if (otpHint) {
+    if (isDevOtpMode()) {
+        otpHint.textContent = 'โหมดจำลอง: ระบบยังไม่ได้ส่งอีเมลจริง รหัส 6 หลักจะแสดงในหน้าต่างแจ้งเตือน (alert)';
+        otpHint.classList.remove('hidden');
+    } else {
+        otpHint.classList.add('hidden');
+    }
 }
 
 // เลื่อนโฟกัสไปช่องถัดไปอัตโนมัติ
@@ -103,7 +113,13 @@ resendBtn.addEventListener('click', async () => {
 
     try {
         await requestOtp(email, purpose);
-        setMessage(messageBox, 'ส่งรหัสใหม่ไปที่อีเมลแล้ว', 'success');
+        setMessage(
+            messageBox,
+            isDevOtpMode()
+                ? 'ส่งรหัสใหม่แล้ว กรอกรหัสจากหน้าต่างแจ้งเตือนที่แสดงก่อนหน้านี้'
+                : 'ส่งรหัสใหม่ไปที่อีเมลแล้ว',
+            'success',
+        );
     } catch (error) {
         setMessage(messageBox, error.message);
     } finally {

@@ -27,7 +27,6 @@
             border-radius: 16px 16px 0 0; box-shadow: 0 -4px 10px -4px rgba(0,0,0,0.05); 
             z-index: 10; opacity: 0; pointer-events: none; 
             will-change: transform, width, opacity; transform-origin: left center;
-            transition: all 0.4s cubic-bezier(0.2, 1, 0.2, 1);
         }
         .text-active { font-weight: 500 !important; color: #FFFFFF !important; text-shadow: none !important; }
         #pay-method-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease, opacity 0.2s; opacity: 0; }
@@ -60,19 +59,14 @@
         <div class="relative">
             <button id="noti-btn" class="relative p-2 bg-white/15 border border-white/30 rounded-full text-white shadow-sm hover:bg-white/25 hover:shadow-md transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                <span id="noti-badge" class="absolute top-1 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span>
             </button>
             <div id="noti-dropdown" class="hidden absolute -right-6 mt-3 w-80 z-50">
                     <div class="absolute -top-2 right-[34px] w-5 h-5 bg-[#F3F4F6] transform rotate-45 rounded-sm"></div>
                     <div class="bg-[#F3F4F6] rounded-[24px] p-2.5 shadow-xl relative z-10">
                         <div class="bg-white rounded-[16px] flex flex-col overflow-hidden">
                             <div class="p-4 border-b text-center font-bold text-gray-700">แจ้งเตือน</div>
-                            <button class="flex items-stretch text-left hover:bg-[#F5F5F5] p-4 group border-b last:border-0 transition-colors">
-                                <div class="w-2 bg-phet-orange mr-3"></div>
-                                <div>
-                                    <p class="font-medium group-hover:text-phet-orange transition-colors">จอมมารตาก</p>
-                                    <p class="text-xs text-gray-400">2 - พ.ค. - 2569</p>
-                                </div>
-                            </button>
+                            <div id="noti-list" class="flex flex-col overflow-y-auto max-h-[300px]"></div>
                         </div>
                     </div>
                 </div>
@@ -81,7 +75,7 @@
         <div class="relative">
             <button id="profile-btn" class="flex items-center space-x-2 bg-white/15 border border-white/30 rounded-full px-4 py-1.5 text-white shadow-sm hover:bg-white/25 hover:shadow-md hover:border-white/60 transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                <span class="text-sm font-medium">เจษฎา</span>
+                <span id="profile-name" class="text-sm font-medium">เจษฎา</span>
             </button>
             <div id="profile-dropdown" class="hidden absolute right-0 mt-3 w-72 z-50">
                 <div class="absolute -top-2 right-8 w-5 h-5 bg-[#F3F4F6] transform rotate-45 rounded-sm"></div>
@@ -95,7 +89,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-phet-orange group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
                         </button>
                         <div class="h-[1px] bg-[#E5E7EB] mx-4 my-0.5 opacity-60"></div>
-                        <button onclick="window.location.href='../index.html'" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#F5F5F5] rounded-xl transition-colors group">
+                        <button onclick="logout()" class="flex items-center justify-between px-4 py-3.5 hover:bg-[#F5F5F5] rounded-xl transition-colors group">
                             <div class="flex items-center space-x-3 text-phet-orange">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
                                 <span class="font-medium text-[16px]">ออกจากระบบ</span>
@@ -239,19 +233,6 @@
             };
         };
 
-        function gotoPage(page) {
-            const indicator = document.getElementById("slide-indicator");
-            const active = document.querySelector(".text-active"); 
-
-            if (active) {
-                sessionStorage.setItem('navLeft', active.offsetLeft);
-                sessionStorage.setItem('navWidth', active.offsetWidth);
-            }
-            setTimeout(() => { 
-                window.location.href = page; 
-            }, 100); 
-        }
-
         function selectMethod(method) {
             currentMethod = method;
             const label = document.getElementById('selected-method'), chevron = document.getElementById('chevron-icon');
@@ -351,6 +332,22 @@
             }
         }
 
+        let payErrTimer = null;
+        function showPaymentError(msg) {
+            const content = document.getElementById('payment-content');
+            if (!content) { window.alert(msg); return; }
+            let errEl = document.getElementById('payment-error');
+            if (!errEl) {
+                errEl = document.createElement('p');
+                errEl.id = 'payment-error';
+                errEl.className = 'mt-5 text-center text-red-500 font-semibold';
+                content.appendChild(errEl);
+            }
+            errEl.textContent = msg;
+            window.clearTimeout(payErrTimer);
+            payErrTimer = window.setTimeout(() => { errEl.textContent = ''; }, 5000);
+        }
+
         async function confirmSubmit() {
             if (!currentPayingBillId) return;
 
@@ -379,7 +376,7 @@
 
                 await loadBillingData();
             } catch (error) {
-                alert(`ส่งข้อมูลการชำระเงินไม่สำเร็จ: ${error.message}`);
+                showPaymentError(`ส่งข้อมูลการชำระเงินไม่สำเร็จ: ${error.message}`);
             } finally {
                 if (button) button.disabled = false;
             }
@@ -488,46 +485,12 @@
             // ต้องโหลดเลขห้องให้เสร็จก่อน จึงจะดึงบิลของห้องตัวเองได้
             await loadTenantData();
             await loadBillingData();
-
-            // จัดการระบบเปลี่ยนหน้า (Navigation)
-            const nav = document.getElementById("main-nav");
-            const ind = document.getElementById("slide-indicator");
-            const links = nav.querySelectorAll(".nav-btn");
-            
-            // หาว่าตอนนี้อยู่เมนูไหน
-            const activeLink = Array.from(links).find(l => l.getAttribute("data-href").toLowerCase() === "bill.html") || links[1];
-            
-            if (activeLink && ind) {
-                ind.style.left = activeLink.offsetLeft + "px";
-                ind.style.width = activeLink.offsetWidth + "px";
-                ind.style.opacity = "1";
-                activeLink.classList.add("text-active");
-            }
-
-            // ผูก Event ให้แต่ละปุ่มสามารถเปลี่ยนหน้าได้
-            links.forEach(l => {
-                l.addEventListener("click", function(e) {
-                    e.preventDefault(); 
-                    const target = this.getAttribute("data-href");
-                    
-                    if (ind) {
-                        ind.style.left = this.offsetLeft + "px";
-                        ind.style.width = this.offsetWidth + "px";
-                    }
-                    
-                    links.forEach(btn => btn.classList.remove("text-active"));
-                    this.classList.add("text-active");
-
-                    if (target && target.toLowerCase() !== "bill.html") {
-                        setTimeout(() => {
-                            window.location.href = target;
-                        }, 250);
-                    }
-                });
-            });
         });
     </script>
 
+    <script type="module" src="../js/tenant-nav.js"></script>
     <script type="module" src="../js/guard.js"></script>
+<script type="module" src="../js/notification-bell.js"></script>
+<script type="module" src="../js/header-profile.js"></script>
 </body>
 </html>

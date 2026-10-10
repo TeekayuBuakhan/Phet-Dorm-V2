@@ -19,7 +19,12 @@ const imagePreviewModal = document.getElementById('imagePreviewModal');
 const previewImage = document.getElementById('previewImage');
 
 let roomRow = null;
-let tenantRow = null;
+// ผู้เช่าปัจจุบันของห้อง (มาจากตาราง profiles)
+let currentOccupant = null;
+// บัญชีผู้ใช้ทุกคนที่มี role = tenant ใช้ค้นหาในช่องพิมพ์ชื่อ
+let tenantCandidates = [];
+// id ของผู้เช่าที่ถูกเลือกจริงจากรายการค้นหา (null = ยังไม่เลือก/ว่าง)
+let selectedTenantId = null;
 let currentImages = [];
 
 // รูปที่เพิ่มในรอบนี้ยังไม่ได้อัปโหลด เก็บไว้ก่อนตอนกดบันทึก
@@ -38,6 +43,7 @@ function storageUrl(path) {
  */
 function parseImagePaths(value) {
     if (!value) return [];
+    if (Array.isArray(value)) return value.filter(Boolean);
     return String(value).split(',').map((item) => item.trim()).filter(Boolean);
 }
 
@@ -145,7 +151,7 @@ async function handleImageSelection(files) {
             });
             renderImages();
         } catch (error) {
-            alert(error.message);
+            showFieldError(error.message || String(error));
         }
     }
 }
@@ -169,9 +175,138 @@ async function uploadPendingFiles() {
     return uploaded;
 }
 
+function tenantLabel(tenant) {
+    const phone = tenant.phone_number ? ` • ${tenant.phone_number}` : '';
+    return `${tenant.full_name || 'ไม่ระบุชื่อ'}${phone}`;
+}
+
+function tenantStatus(tenant) {
+    if (currentOccupant && tenant.id === currentOccupant.id) {
+        return `ผู้เช่าปัจจุบัน (ห้อง ${roomRow.room_number})`;
+    }
+    return tenant.room_number ? `อยู่ห้อง ${tenant.room_number}` : 'ยังไม่มีห้อง';
+}
+
+function matchTenantByName(text) {
+    const query = text.trim().toLowerCase();
+    if (!query) return null;
+    return tenantCandidates.find((tenant) => (tenant.full_name || '').trim().toLowerCase() === query) ?? null;
+}
+
+function setTenantError(message) {
+    const input = document.getElementById('tenantSearch');
+    const errorEl = document.getElementById('tenantError');
+
+    if (message) {
+        input.classList.remove('border-gray-300');
+        input.classList.add('border-red-400', 'focus:border-red-400', 'focus:ring-red-300');
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    } else {
+        input.classList.remove('border-red-400', 'focus:border-red-400', 'focus:ring-red-300');
+        input.classList.add('border-gray-300');
+        errorEl.classList.add('hidden');
+    }
+}
+
+function hideSuggestions() {
+    document.getElementById('tenantSuggest').classList.add('hidden');
+}
+
+function renderSuggestions(query) {
+    const box = document.getElementById('tenantSuggest');
+    const keyword = query.trim().toLowerCase();
+
+    const matches = tenantCandidates
+        .filter((tenant) => {
+            if (!keyword) return true;
+            const name = (tenant.full_name || '').toLowerCase();
+            const phone = (tenant.phone_number || '').toLowerCase();
+            return name.includes(keyword) || phone.includes(keyword);
+        })
+        .slice(0, 3);
+
+    box.innerHTML = '';
+
+    if (matches.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'px-4 py-3 text-sm text-gray-400';
+        empty.textContent = 'ไม่พบบัญชีที่ตรงกับคำค้น';
+        box.appendChild(empty);
+        box.classList.remove('hidden');
+        return;
+    }
+
+    for (const tenant of matches) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'w-full text-left px-4 py-2.5 hover:bg-orange-50 transition-colors border-b border-gray-50 last:border-b-0';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'block text-sm font-medium text-gray-800';
+        nameEl.textContent = tenantLabel(tenant);
+
+        const statusEl = document.createElement('span');
+        statusEl.className = 'block text-xs text-gray-400';
+        statusEl.textContent = tenantStatus(tenant);
+
+        item.append(nameEl, statusEl);
+        item.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            selectTenant(tenant);
+        });
+        box.appendChild(item);
+    }
+
+    box.classList.remove('hidden');
+}
+
+function selectTenant(tenant) {
+    selectedTenantId = tenant.id;
+    document.getElementById('tenantSearch').value = tenant.full_name || '';
+    document.getElementById('tenantPhone').value = tenant.phone_number ?? '';
+    setTenantError(null);
+    hideSuggestions();
+}
+
+// อัปเดตสถานะการเลือกเมื่อผู้ใช้พิมพ์เอง (ไม่ผ่านการคลิก suggestion)
+function syncTenantFromInput() {
+    const input = document.getElementById('tenantSearch');
+    const text = input.value.trim();
+    const exact = matchTenantByName(text);
+
+    if (!text) {
+        selectedTenantId = null;
+        document.getElementById('tenantPhone').value = '';
+        setTenantError(null);
+        return;
+    }
+
+    if (exact) {
+        selectedTenantId = exact.id;
+        document.getElementById('tenantPhone').value = exact.phone_number ?? '';
+        setTenantError(null);
+    } else {
+        selectedTenantId = null;
+        document.getElementById('tenantPhone').value = '';
+    }
+}
+
+// ตรวจว่าชื่อที่พิมพ์ตรงกับบัญชีในระบบหรือไม่ ถ้าไม่ให้โชว์ error ตรงกล่องข้อความ
+function checkTenantInput() {
+    const text = document.getElementById('tenantSearch').value.trim();
+
+    if (!text || selectedTenantId) {
+        setTenantError(null);
+        return null;
+    }
+
+    const message = `ไม่พบบัญชีผู้ใช้ "${text}" ในระบบ กรุณาเลือกจากรายการที่แสดง`;
+    setTenantError(message);
+    return message;
+}
+
 function fillForm() {
-    document.getElementById('tenantName').value = tenantRow?.full_name ?? '';
-    document.getElementById('tenantPhone').value = tenantRow?.phone_number ?? '';
     document.getElementById('roomNum').value = roomRow.room_number;
     document.getElementById('roomPrice').value = roomRow.room_price ?? '';
     document.getElementById('elecRate').value = roomRow.elec_rate ?? '';
@@ -183,14 +318,19 @@ function fillForm() {
     document.getElementById('additionalInfo').value = roomRow.additional_info ?? '';
     document.getElementById('roomNum').readOnly = true;
 
+    selectedTenantId = currentOccupant?.id ?? null;
+    document.getElementById('tenantSearch').value = currentOccupant?.full_name ?? '';
+    document.getElementById('tenantPhone').value = currentOccupant?.phone_number ?? '';
+    setTenantError(null);
+    hideSuggestions();
+
     currentImages = parseImagePaths(roomRow.room_images).map((path) => ({ path, url: storageUrl(path) }));
     renderImages();
 }
 
 function collectPayload() {
     return {
-        tenantName: document.getElementById('tenantName').value.trim(),
-        tenantPhone: document.getElementById('tenantPhone').value.trim(),
+        tenantText: document.getElementById('tenantSearch').value.trim(),
         roomPrice: document.getElementById('roomPrice').value.trim(),
         elecRate: document.getElementById('elecRate').value.trim(),
         waterRate: document.getElementById('waterRate').value.trim(),
@@ -199,13 +339,27 @@ function collectPayload() {
     };
 }
 
+function showFieldError(msg) {
+    const errorEl = document.getElementById('tenantError');
+    const input = document.getElementById('tenantSearch');
+    if (!errorEl) {
+        window.alert(msg);
+        return;
+    }
+    input?.classList.remove('border-gray-300');
+    input?.classList.add('border-red-400', 'focus:border-red-400', 'focus:ring-red-300');
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+    window.clearTimeout(showFieldError._timer);
+    showFieldError._timer = window.setTimeout(() => setTenantError(null), 3000);
+}
+
 function validate(payload) {
-    const hasTenant = payload.tenantName !== '' || payload.tenantPhone !== '';
+    const hasTenant = payload.tenantText !== '';
 
     if (hasTenant) {
-        if (!payload.tenantName) return 'กรุณากรอกชื่อผู้เช่า';
-        if (payload.tenantPhone && !/^0\d{9}$/.test(payload.tenantPhone.replace(/[\s-]/g, ''))) {
-            return 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักและขึ้นต้นด้วย 0';
+        if (!selectedTenantId) {
+            return `ไม่พบบัญชีผู้ใช้ "${payload.tenantText}" ในระบบ กรุณาเลือกจากรายการที่แสดง`;
         }
         if (!payload.roomPrice || !payload.elecRate || !payload.waterRate) {
             return 'กรุณากรอกราคาห้อง ค่าไฟ และค่าน้ำ ให้ครบถ้วน เนื่องจากมีการระบุข้อมูลผู้เช่า';
@@ -220,8 +374,18 @@ async function save() {
     const payload = collectPayload();
     const error = validate(payload);
     if (error) {
-        alert(error);
+        if (payload.tenantText && !selectedTenantId) setTenantError(error);
+        else showFieldError(String(error));
         return;
+    }
+
+    const currentId = currentOccupant?.id ?? null;
+    const selectedId = selectedTenantId;
+
+    // ถ้าไม่เลือกผู้เช่า แต่ห้องมีผู้เช่าอยู่ ต้องยืนยันก่อนนำผู้เช่าออก
+    if (!selectedId && currentId) {
+        const name = currentOccupant.full_name || 'ผู้เช่า';
+        if (!window.confirm(`ต้องการนำ ${name} ออกจากห้อง ${roomRow.room_number} หรือไม่?`)) return;
     }
 
     const confirmButton = document.getElementById('confirmSaveBtn');
@@ -243,11 +407,11 @@ async function save() {
                 water_rate: payload.waterRate ? Number(payload.waterRate) : null,
                 room_type: payload.roomType || null,
                 additional_info: payload.additionalInfo || null,
-                room_images: paths.length ? paths.join(',') : null,
+                room_images: paths.length ? paths : null,
             })
             .eq('room_number', roomRow.room_number);
 
-if (roomError) throw new Error(friendlyError(roomError));
+        if (roomError) throw new Error(friendlyError(roomError));
 
         // บันทึกห้องสำเร็จแล้วจึงลบรูปเดิมที่ผู้ใช้เอาออกจากรายการ
         if (removedImagePaths.length) {
@@ -256,42 +420,36 @@ if (roomError) throw new Error(friendlyError(roomError));
             removedImagePaths = [];
         }
 
-        if (tenantRow) {
-            const hasTenantInfo = payload.tenantName !== '' || payload.tenantPhone !== '';
-
-            if (hasTenantInfo) {
-                const { error: tenantError } = await supabase
-                    .from('tenant')
-                    .update({
-                        full_name: payload.tenantName || tenantRow.full_name,
-                        phone_number: payload.tenantPhone || tenantRow.phone_number,
-                    })
-                    .eq('tenant_id', tenantRow.tenant_id);
-
-                if (tenantError) throw new Error(friendlyError(tenantError));
-            } else if (window.confirm('ยังไม่ได้กรอกข้อมูลผู้เช่า ต้องการนำผู้เช่าออกจากห้องนี้หรือไม่?')) {
-                const { error: tenantError } = await supabase
-                    .from('tenant')
-                    .update({ room_number: null })
-                    .eq('tenant_id', tenantRow.tenant_id);
-
-                if (tenantError) throw new Error(friendlyError(tenantError));
-            }
+        // ย้ายเข้า/ย้ายออก: แก้ room_number ของ profiles (trigger จะ sync ไปตาราง tenant ให้เอง)
+        if (selectedId !== currentId) {
+            if (currentId) await moveTenant(currentId, null);
+            if (selectedId) await moveTenant(selectedId, roomRow.room_number);
         }
 
         saveConfirmModal.classList.replace('flex', 'hidden');
         window.location.href = 'Admin_Room.html';
     } catch (err) {
-        alert(`บันทึกไม่สำเร็จ: ${err.message}`);
+        showFieldError('บันทึกไม่สำเร็จ: ' + (err.message || String(err)));
     } finally {
         confirmButton.disabled = false;
         confirmButton.textContent = 'ยืนยัน';
     }
 }
 
+async function moveTenant(userId, roomNumber) {
+    if (!userId) throw new Error('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
+
+    const { error } = await supabase
+        .from('profiles')
+        .update({ room_number: roomNumber })
+        .eq('id', userId);
+
+    if (error) throw new Error(friendlyError(error));
+}
+
 async function loadRoom() {
     if (!roomNumberParam) {
-        alert('ไม่พบเลขห้องที่ต้องการแก้ไข (ต้องเปิดด้วย ?room=เลขห้อง)');
+        showFieldError('ไม่พบเลขห้องที่ต้องการแก้ไข (ต้องเปิดด้วย ?room=เลขห้อง)');
         return;
     }
 
@@ -303,19 +461,34 @@ async function loadRoom() {
 
     if (roomError) throw new Error(friendlyError(roomError));
     if (!room) {
-        alert(`ไม่พบห้อง ${roomNumberParam}`);
+        showFieldError(`ไม่พบห้อง ${roomNumberParam}`);
         return;
     }
 
     roomRow = room;
 
-    const { data: tenant } = await supabase
-        .from('tenant')
-        .select('tenant_id, full_name, phone_number')
-        .eq('room_number', roomNumberParam)
-        .maybeSingle();
+    // ผู้เช่าปัจจุบันของห้อง (profiles เป็นแหล่งข้อมูลหลัก)
+    const { data: occupants, error: occupantError } = await supabase
+        .from('profiles')
+        .select('id, full_name, phone_number, room_number')
+        .eq('room_number', roomNumberParam);
+    if (occupantError) throw new Error(friendlyError(occupantError));
+    currentOccupant = occupants?.[0] ?? null;
 
-    tenantRow = tenant;
+    // แสดงเฉพาะบัญชีผู้เช่าที่ยังไม่มีห้อง + ผู้เช่าปัจจุบันของห้องนี้
+    const { data: tenants, error: tenantsError } = await supabase
+        .from('profiles')
+        .select('id, full_name, phone_number, room_number')
+        .eq('role', 'tenant')
+        .is('room_number', null)
+        .order('full_name');
+    if (tenantsError) throw new Error(friendlyError(tenantsError));
+
+    tenantCandidates = tenants ?? [];
+    if (currentOccupant && !tenantCandidates.some((tenant) => tenant.id === currentOccupant.id)) {
+        tenantCandidates.push(currentOccupant);
+    }
+
     fillForm();
 }
 
@@ -332,9 +505,11 @@ async function init() {
     });
 
     document.getElementById('saveBtn').addEventListener('click', () => {
-        const error = validate(collectPayload());
+        const payload = collectPayload();
+        const error = validate(payload);
         if (error) {
-            alert(error);
+            if (payload.tenantText && !selectedTenantId) setTenantError(error);
+            else showFieldError(String(error));
             return;
         }
         saveConfirmModal.classList.replace('hidden', 'flex');
@@ -351,8 +526,27 @@ async function init() {
     });
 
     document.getElementById('clearTenantBtn').addEventListener('click', () => {
-        document.getElementById('tenantName').value = '';
+        selectedTenantId = null;
+        document.getElementById('tenantSearch').value = '';
         document.getElementById('tenantPhone').value = '';
+        setTenantError(null);
+        hideSuggestions();
+    });
+
+    const tenantSearch = document.getElementById('tenantSearch');
+    tenantSearch.addEventListener('input', () => {
+        syncTenantFromInput();
+        renderSuggestions(tenantSearch.value);
+    });
+    tenantSearch.addEventListener('focus', () => {
+        renderSuggestions(tenantSearch.value);
+    });
+    tenantSearch.addEventListener('blur', () => {
+        // หน่วงให้ mousedown ของ suggestion ทำงานก่อน (กันการเลือกไม่ติด)
+        setTimeout(() => {
+            hideSuggestions();
+            checkTenantInput();
+        }, 150);
     });
 
     document.getElementById('resetBtn').addEventListener('click', () => window.location.reload());
@@ -360,7 +554,7 @@ async function init() {
     try {
         await loadRoom();
     } catch (error) {
-        alert(`โหลดข้อมูลห้องไม่สำเร็จ: ${error.message}`);
+        showFieldError('โหลดข้อมูลห้องไม่สำเร็จ: ' + (error.message || String(error)));
     }
 }
 

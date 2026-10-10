@@ -5,6 +5,7 @@
 
 import { supabase } from '../Client.js';
 import { friendlyError, getMyProfile, requireRole } from './auth.js';
+import { mountNotificationBell } from './notifications.js';
 
 const roomLabel = document.getElementById('display-room');
 const nameLabel = document.getElementById('display-name');
@@ -72,6 +73,8 @@ async function renderHome() {
 async function init() {
     const allowed = await requireRole('tenant');
     if (!allowed) return;
+
+    mountNotificationBell();
 
     try {
         await renderHome();

@@ -29,7 +29,7 @@ function formatPhone(phone) {
 async function fetchTenants() {
     const { data, error } = await supabase
         .from('tenant')
-        .select('tenant_id, full_name, phone_number, room_number, profiles(role)')
+        .select('tenant_id, user_id, full_name, email, phone_number, room_number, profiles(role)')
         .order('tenant_id');
 
     if (error) throw new Error(friendlyError(error));
@@ -47,7 +47,7 @@ function renderTable() {
     document.getElementById('statNoRoom').innerText = tenants.length - withRoom;
 
     if (tenants.length === 0) {
-        tbody.innerHTML = '<tr class="border-b border-gray-50"><td colspan="5" class="py-10 text-gray-400">ยังไม่มีผู้เช่าในระบบ</td></tr>';
+        tbody.innerHTML = '<tr class="border-b border-gray-50"><td colspan="6" class="py-10 text-gray-400">ยังไม่มีผู้เช่าในระบบ</td></tr>';
         return;
     }
 
@@ -72,6 +72,7 @@ function renderTable() {
         tr.innerHTML = `
             <td class="py-4 px-4 text-gray-400">${index + 1}</td>
             <td class="py-4 px-4 font-medium text-gray-800">${escapeHtml(tenant.full_name || '-')}</td>
+            <td class="py-4 px-4">${escapeHtml(tenant.email || '-')}</td>
             <td class="py-4 px-4">${escapeHtml(formatPhone(tenant.phone_number))}</td>
             <td class="py-4 px-4">${roomHtml}</td>
             <td class="py-4 px-4">${actionHtml}</td>
@@ -135,10 +136,15 @@ async function confirmMoveIn() {
         return;
     }
 
+    if (!moveInTenant.user_id) {
+        alert('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
+        return;
+    }
+
     const { error } = await supabase
-        .from('tenant')
+        .from('profiles')
         .update({ room_number: roomNumber })
-        .eq('tenant_id', moveInTenant.tenant_id);
+        .eq('id', moveInTenant.user_id);
 
     if (error) {
         alert(friendlyError(error));
@@ -166,10 +172,15 @@ function closeMoveOutModal() {
 async function confirmMoveOut() {
     if (!moveOutTenant) return;
 
+    if (!moveOutTenant.user_id) {
+        alert('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
+        return;
+    }
+
     const { error } = await supabase
-        .from('tenant')
+        .from('profiles')
         .update({ room_number: null })
-        .eq('tenant_id', moveOutTenant.tenant_id);
+        .eq('id', moveOutTenant.user_id);
 
     if (error) {
         alert(friendlyError(error));
@@ -225,7 +236,7 @@ async function init() {
     try {
         await refresh();
     } catch (error) {
-        tbody.innerHTML = `<tr class="border-b border-gray-50"><td colspan="5" class="py-10 text-red-500">${escapeHtml(error.message)}</td></tr>`;
+        tbody.innerHTML = `<tr class="border-b border-gray-50"><td colspan="6" class="py-10 text-red-500">${escapeHtml(error.message)}</td></tr>`;
     }
 }
 

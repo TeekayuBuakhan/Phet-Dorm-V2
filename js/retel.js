@@ -10,9 +10,28 @@ import { PHONE_REGEX, requireRole } from './auth.js';
 import { clearOtp as forgetLocalOtp, confirmOtp, requestOtp } from './dev-otp.js';
 
 let currentEmail = null;
+let msgTimer = null;
 
-function showAlert(message) {
-    alert(message);
+function markInvalid(input, isInvalid) {
+    if (!input) return;
+    input.classList.toggle('border-red-400', isInvalid);
+    input.classList.toggle('focus:ring-red-300', isInvalid);
+}
+
+function showAlert(message, tone = 'error') {
+    const el = document.getElementById('inline-msg');
+    if (!el) {
+        window.alert(message);
+        return;
+    }
+    el.className = 'mb-6 text-lg font-medium rounded-2xl px-5 py-3 ' +
+        (tone === 'success'
+            ? 'text-green-600 bg-green-50 border border-green-200'
+            : 'text-red-500 bg-red-50 border border-red-200');
+    el.textContent = message;
+    el.classList.remove('hidden');
+    window.clearTimeout(msgTimer);
+    msgTimer = window.setTimeout(() => el.classList.add('hidden'), 4000);
 }
 
 export function gotoPage(page) {
@@ -40,6 +59,7 @@ async function sendOTP() {
     const newPhone = document.getElementById('new-phone-input').value.trim();
 
     if (!PHONE_REGEX.test(newPhone)) {
+        markInvalid(document.getElementById('new-phone-input'), true);
         showAlert('กรุณากรอกเบอร์โทรศัพท์ใหม่ให้ถูกต้อง (ตัวเลข 10 หลักขึ้นต้นด้วย 0)');
         return;
     }
@@ -71,11 +91,13 @@ async function confirmChangePhone() {
     const otp = document.getElementById('otp-input').value.trim();
 
     if (!PHONE_REGEX.test(newPhone)) {
+        markInvalid(document.getElementById('new-phone-input'), true);
         showAlert('กรุณากรอกเบอร์โทรศัพท์ใหม่ให้ถูกต้อง (ตัวเลข 10 หลักขึ้นต้นด้วย 0)');
         return;
     }
 
     if (!/^\d{6}$/.test(otp)) {
+        markInvalid(document.getElementById('otp-input'), true);
         showAlert('กรุณากรอกรหัส OTP 6 หลัก');
         return;
     }
@@ -90,9 +112,12 @@ async function confirmChangePhone() {
     if (!valid) {
         // ล้างรหัสทิ้งทุกครั้งที่ใส่ผิด ไม่ให้เดารหัสซ้ำได้
         forgetLocalOtp();
+        markInvalid(document.getElementById('otp-input'), true);
         showAlert('ยืนยันรหัสไม่สำเร็จ รหัส OTP ไม่ถูกต้องหรือหมดอายุแล้ว');
         return;
     }
+
+    markInvalid(document.getElementById('otp-input'), false);
 
     const { error } = await supabase.rpc('update_my_phone_number', {
         p_phone: newPhone,
@@ -103,8 +128,8 @@ async function confirmChangePhone() {
         return;
     }
 
-    showAlert('บันทึกข้อมูลเรียบร้อยแล้ว!');
-    gotoPage('Profile.html');
+    showAlert('บันทึกข้อมูลเรียบร้อยแล้ว!', 'success');
+    setTimeout(() => gotoPage('Profile.html'), 1200);
 }
 
 document.getElementById('send-otp-btn').addEventListener('click', sendOTP);

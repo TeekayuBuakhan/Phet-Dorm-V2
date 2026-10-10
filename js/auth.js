@@ -144,6 +144,16 @@ export async function signOut(base = '../') {
     window.location.href = `${base}index.html`;
 }
 
+// ปุ่ม "ออกจากระบบ" ใน HTML ใช้ inline onclick="logout()"
+// เพราะฟังก์ชันใน ES module เรียกตรง ๆ จาก onclick ไม่ได้จึงผูกไว้กับ window
+window.logout = async () => {
+    try {
+        await supabase.auth.signOut();
+    } finally {
+        window.location.href = '../index.html';
+    }
+};
+
 // ---------- ลืมรหัสผ่าน ----------
 
 /**
