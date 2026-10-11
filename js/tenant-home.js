@@ -28,7 +28,7 @@ async function getOutstandingBalance(roomNumber) {
         .from('billing')
         .select('total_amount')
         .eq('room_number', roomNumber)
-        .eq('bill_status', 'รอชำระ');
+        .eq('bill_status', 'รอชำระเงิน');
 
     if (error) throw new Error(friendlyError(error));
 

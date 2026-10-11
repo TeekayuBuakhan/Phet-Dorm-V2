@@ -32,7 +32,7 @@ async function fetchRooms() {
 
 function vacantRowCount(bills) {
     if (!bills) return 0;
-    return bills.filter((bill) => bill.bill_status === 'รอชำระ').length;
+    return bills.filter((bill) => bill.bill_status === 'รอชำระเงิน').length;
 }
 
 function renderTable() {

@@ -69,7 +69,7 @@ function renderTable() {
                 <td class="py-4 px-6 text-gray-400" data-role="usage">${usage}</td>
                 <td class="py-4 px-6 text-red-500 font-medium" data-role="cost">${elecCostOf(room, usage).toLocaleString()}</td>
                 <td class="py-4 px-6 pr-8 text-right">
-                    <button class="bg-btn-green text-white px-6 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 transition shadow-sm">บันทึก</button>
+                    <button class="bg-btn-green text-white px-6 py-1.5 rounded-lg text-sm font-medium hover:bg-green-600 transition shadow-sm whitespace-nowrap">บันทึก</button>
                 </td>
             </tr>`;
     }).join('');
