@@ -122,6 +122,12 @@ document.getElementById('saveModalBtn').addEventListener('click', async () => {
         return;
     }
 
+    const priceNum = Number(roomPrice);
+    if (!Number.isFinite(priceNum) || priceNum < 1) {
+        setMessage(addRoomMessage, 'ราคาห้องต้องไม่น้อยกว่า 1 บาท');
+        return;
+    }
+
     if (rooms.some((room) => room.room_number === roomNumber)) {
         setMessage(addRoomMessage, 'มีเลขห้องนี้อยู่ในระบบแล้วครับ');
         return;
@@ -130,7 +136,7 @@ document.getElementById('saveModalBtn').addEventListener('click', async () => {
     const { error } = await supabase.from('room').insert({
         room_number: roomNumber,
         room_type: roomType,
-        room_price: Number(roomPrice),
+        room_price: priceNum,
     });
 
     if (error) {

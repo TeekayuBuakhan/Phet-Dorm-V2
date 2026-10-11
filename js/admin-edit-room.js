@@ -357,6 +357,11 @@ function showFieldError(msg) {
 function validate(payload) {
     const hasTenant = payload.tenantText !== '';
 
+    const priceNum = Number(payload.roomPrice);
+    if (String(payload.roomPrice ?? '').trim() !== '' && (!Number.isFinite(priceNum) || priceNum < 1)) {
+        return 'ราคาห้องต้องไม่น้อยกว่า 1 บาท';
+    }
+
     if (hasTenant) {
         if (!selectedTenantId) {
             return `ไม่พบบัญชีผู้ใช้ "${payload.tenantText}" ในระบบ กรุณาเลือกจากรายการที่แสดง`;
