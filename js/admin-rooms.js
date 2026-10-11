@@ -5,13 +5,15 @@
 
 import { supabase } from '../Client.js';
 import { friendlyError, requireRole } from './auth.js';
-import { escapeHtml } from './ui.js';
+import { escapeHtml, setMessage } from './ui.js';
 
 const modal = document.getElementById('modalOverlay');
 const deleteModal = document.getElementById('deleteModalOverlay');
 const infoModal = document.getElementById('infoModalOverlay');
 const tbody = document.getElementById('roomsBody');
 const searchInput = document.getElementById('searchInput');
+const addRoomMessage = document.getElementById('addRoomMessage');
+const deleteRoomMessage = document.getElementById('deleteRoomMessage');
 
 let rooms = [];
 let rowToDeleteNum = null;
@@ -98,9 +100,11 @@ function closeModal() {
     modal.classList.replace('flex', 'hidden');
     document.getElementById('newRoomNum').value = '';
     document.getElementById('newRoomPrice').value = '';
+    setMessage(addRoomMessage, '');
 }
 
 document.getElementById('openAddRoomBtn').addEventListener('click', () => {
+    setMessage(addRoomMessage, '');
     modal.classList.replace('hidden', 'flex');
 });
 
@@ -111,13 +115,15 @@ document.getElementById('saveModalBtn').addEventListener('click', async () => {
     const roomType = document.getElementById('newRoomType').value;
     const roomPrice = document.getElementById('newRoomPrice').value.trim();
 
+    setMessage(addRoomMessage, '');
+
     if (!roomNumber || !roomPrice) {
-        alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        setMessage(addRoomMessage, 'กรุณากรอกข้อมูลให้ครบถ้วน');
         return;
     }
 
     if (rooms.some((room) => room.room_number === roomNumber)) {
-        alert('มีเลขห้องนี้อยู่ในระบบแล้วครับ');
+        setMessage(addRoomMessage, 'มีเลขห้องนี้อยู่ในระบบแล้วครับ');
         return;
     }
 
@@ -128,7 +134,7 @@ document.getElementById('saveModalBtn').addEventListener('click', async () => {
     });
 
     if (error) {
-        alert(friendlyError(error));
+        setMessage(addRoomMessage, friendlyError(error));
         return;
     }
 
@@ -140,6 +146,7 @@ tbody.addEventListener('click', (event) => {
     const deleteBtn = event.target.closest('.btn-delete');
     if (deleteBtn) {
         rowToDeleteNum = deleteBtn.getAttribute('data-room');
+        setMessage(deleteRoomMessage, '');
         deleteModal.classList.replace('hidden', 'flex');
         return;
     }
@@ -169,11 +176,14 @@ tbody.addEventListener('click', (event) => {
 
 document.getElementById('closeDeleteBtn').addEventListener('click', () => {
     deleteModal.classList.replace('flex', 'hidden');
+    setMessage(deleteRoomMessage, '');
     rowToDeleteNum = null;
 });
 
 document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
     if (!rowToDeleteNum) return;
+
+    setMessage(deleteRoomMessage, '');
 
     const { error } = await supabase
         .from('room')
@@ -181,11 +191,11 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async () =
         .eq('room_number', rowToDeleteNum);
 
     if (error) {
-        alert(`ลบห้องไม่สำเร็จ: ${friendlyError(error)}`);
-    } else {
-        await refresh();
+        setMessage(deleteRoomMessage, `ลบห้องไม่สำเร็จ: ${friendlyError(error)}`);
+        return;
     }
 
+    await refresh();
     rowToDeleteNum = null;
     deleteModal.classList.replace('flex', 'hidden');
 });

@@ -6,12 +6,14 @@
 
 import { mountNotificationBell, renderNotificationGrid } from './notifications.js';
 
+const GRID_LIMIT = 3;
+
 const grid = document.getElementById('noti-grid');
 
 mountNotificationBell();
 
 if (grid) {
-    renderNotificationGrid(grid, { limit: 6 });
+    renderNotificationGrid(grid, { limit: GRID_LIMIT });
 
     const seeAll = document.getElementById('noti-see-all');
     if (seeAll) {
@@ -19,8 +21,8 @@ if (grid) {
             const total = Number(grid.dataset.total ?? '0');
             const showAll = grid.dataset.showAll !== 'true';
             grid.dataset.showAll = String(showAll);
-            seeAll.innerText = showAll ? 'ซ่อน' : `ดูทั้งหมด${total > 6 ? ` (${total})` : ''}`;
-            renderNotificationGrid(grid, showAll ? {} : { limit: 6 });
+            seeAll.innerText = showAll ? 'ซ่อน' : `ดูทั้งหมด${total > GRID_LIMIT ? ` (${total})` : ''}`;
+            renderNotificationGrid(grid, showAll ? {} : { limit: GRID_LIMIT });
         });
         seeAll.classList.remove('hidden');
     }

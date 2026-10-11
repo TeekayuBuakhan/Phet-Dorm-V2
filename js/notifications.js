@@ -196,13 +196,13 @@ export function mountNotificationBell(options = {}) {
  * @param {{ limit?: number, showRoomBadge?: boolean }} options
  */
 export function renderNotificationGrid(container, { limit = 0, showRoomBadge = true } = {}) {
-    if (!container) return;
+    if (!container) return Promise.resolve(0);
 
     const roomNumber = (notification) => notification.payload?.room_number ?? null;
 
     container.innerHTML = '';
 
-    loadNotifications()
+    return loadNotifications()
         .then((items) => {
             const visible = limit > 0 ? items.slice(0, limit) : items;
 
@@ -213,7 +213,7 @@ export function renderNotificationGrid(container, { limit = 0, showRoomBadge = t
                     </div>
                 `;
                 container.dataset.total = '0';
-                return;
+                return 0;
             }
 
             visible.forEach((notification) => {
@@ -268,6 +268,7 @@ export function renderNotificationGrid(container, { limit = 0, showRoomBadge = t
             });
 
             container.dataset.total = String(items.length);
+            return items.length;
         })
         .catch((error) => {
             console.error(error);
@@ -276,5 +277,6 @@ export function renderNotificationGrid(container, { limit = 0, showRoomBadge = t
                     โหลดการแจ้งเตือนไม่สำเร็จ
                 </div>
             `;
+            return 0;
         });
 }

@@ -5,12 +5,14 @@
 
 import { supabase } from '../Client.js';
 import { friendlyError, requireRole } from './auth.js';
-import { escapeHtml } from './ui.js';
+import { escapeHtml, setMessage } from './ui.js';
 
 const tbody = document.getElementById('tenantBody');
 const searchInput = document.getElementById('searchInput');
 const moveInModal = document.getElementById('moveInModal');
 const moveOutModal = document.getElementById('moveOutModal');
+const moveInMessage = document.getElementById('moveInMessage');
+const moveOutMessage = document.getElementById('moveOutMessage');
 
 let tenants = [];
 let moveInTenant = null;
@@ -103,6 +105,7 @@ function openMoveInModal(tenant) {
     moveInTenant = tenant;
     document.getElementById('moveInUserName').innerText = tenant.full_name || '-';
     document.getElementById('moveInRoomNum').value = '';
+    setMessage(moveInMessage, '');
     moveInModal.classList.replace('hidden', 'flex');
 }
 
@@ -114,9 +117,11 @@ function closeMoveInModal() {
 async function confirmMoveIn() {
     if (!moveInTenant) return;
 
+    setMessage(moveInMessage, '');
+
     const roomNumber = document.getElementById('moveInRoomNum').value.trim();
     if (!roomNumber) {
-        alert('กรุณากรอกเลขห้อง');
+        setMessage(moveInMessage, 'กรุณากรอกเลขห้อง');
         return;
     }
 
@@ -127,17 +132,17 @@ async function confirmMoveIn() {
         .maybeSingle();
 
     if (!room) {
-        alert('ไม่พบห้องนั้นในระบบ');
+        setMessage(moveInMessage, 'ไม่พบห้องนั้นในระบบ');
         return;
     }
 
     if (room.tenant?.length) {
-        alert(`ห้อง ${room.room_number} มีผู้พักอาศัยอยู่แล้ว`);
+        setMessage(moveInMessage, `ห้อง ${room.room_number} มีผู้พักอาศัยอยู่แล้ว`);
         return;
     }
 
     if (!moveInTenant.user_id) {
-        alert('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
+        setMessage(moveInMessage, 'ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
         return;
     }
 
@@ -147,7 +152,7 @@ async function confirmMoveIn() {
         .eq('id', moveInTenant.user_id);
 
     if (error) {
-        alert(friendlyError(error));
+        setMessage(moveInMessage, friendlyError(error));
         return;
     }
 
@@ -161,6 +166,7 @@ function openMoveOutModal(tenant) {
     moveOutTenant = tenant;
     document.getElementById('moveOutConfirmText').innerText =
         `ยืนยันที่จะย้าย ${tenant.full_name || '-'} ออกจากห้อง ${tenant.room_number} หรือไม่?`;
+    setMessage(moveOutMessage, '');
     moveOutModal.classList.replace('hidden', 'flex');
 }
 
@@ -172,8 +178,10 @@ function closeMoveOutModal() {
 async function confirmMoveOut() {
     if (!moveOutTenant) return;
 
+    setMessage(moveOutMessage, '');
+
     if (!moveOutTenant.user_id) {
-        alert('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
+        setMessage(moveOutMessage, 'ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
         return;
     }
 
@@ -183,7 +191,7 @@ async function confirmMoveOut() {
         .eq('id', moveOutTenant.user_id);
 
     if (error) {
-        alert(friendlyError(error));
+        setMessage(moveOutMessage, friendlyError(error));
         return;
     }
 

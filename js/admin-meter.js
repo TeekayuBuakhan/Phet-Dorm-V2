@@ -64,7 +64,7 @@ function renderTable() {
                 <td class="py-4 px-6 font-medium">${room.roomNumber}</td>
                 <td class="py-4 px-6">${previous ?? 0}</td>
                 <td class="py-4 px-6">
-                    <input type="text" class="meter-input w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:border-phet-orange focus:ring-phet-orange outline-none" value="${current ?? ''}" maxlength="6" inputmode="numeric" placeholder="____">
+                    <input type="text" class="meter-input w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-gray-700 focus:border-phet-orange focus:ring-phet-orange outline-none" value="${current ?? ''}" maxlength="4" inputmode="numeric" placeholder="____">
                 </td>
                 <td class="py-4 px-6 text-gray-400" data-role="usage">${usage}</td>
                 <td class="py-4 px-6 text-red-500 font-medium" data-role="cost">${elecCostOf(room, usage).toLocaleString()}</td>
@@ -79,25 +79,35 @@ function renderTable() {
         if (!room) return;
 
         const input = tr.querySelector('.meter-input');
+
         input.addEventListener('input', () => {
-            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+            input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+            input.classList.remove('border-red-500');
             updateRowCalculation(tr, room);
         });
 
         tr.querySelector('button').addEventListener('click', async (event) => {
             const button = event.currentTarget;
+
+            if (input.value.trim() === '') {
+                input.classList.add('border-red-500');
+                input.focus();
+                return;
+            }
+
             button.disabled = true;
             const original = button.textContent;
             button.textContent = 'กำลังบันทึก...';
 
             try {
-                await saveReading(room.roomNumber, monthKey, input.value === '' ? 0 : input.value);
-                currentReadings.set(room.roomNumber, input.value === '' ? 0 : Number(input.value));
+                await saveReading(room.roomNumber, monthKey, input.value);
+                currentReadings.set(room.roomNumber, Number(input.value));
                 updateRowCalculation(tr, room);
+                input.classList.remove('border-red-500');
                 button.textContent = 'บันทึกแล้ว';
                 setTimeout(() => { button.textContent = original; }, 1500);
             } catch (error) {
-                alert(`บันทึกไม่สำเร็จ: ${error.message}`);
+                input.classList.add('border-red-500');
                 button.textContent = original;
             } finally {
                 button.disabled = false;

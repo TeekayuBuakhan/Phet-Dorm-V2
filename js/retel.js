@@ -6,10 +6,11 @@
 // (ถ้าแก้ตรง ๆ จะไม่มี policy ที่รองรับ และจะได้ 0 แถวโดยไม่แจ้ง error)
 
 import { supabase } from '../Client.js';
-import { PHONE_REGEX, requireRole } from './auth.js';
+import { PHONE_REGEX, requireRole, roleHome } from './auth.js';
 import { clearOtp as forgetLocalOtp, confirmOtp, requestOtp } from './dev-otp.js';
 
 let currentEmail = null;
+let currentProfile = null;
 let msgTimer = null;
 
 function markInvalid(input, isInvalid) {
@@ -41,9 +42,16 @@ export function gotoPage(page) {
 // ให้ปุ่มใน HTML เรียกใช้ได้
 window.gotoPage = gotoPage;
 
+// ปุ่มโลโก้ให้กลับหน้าหลักตาม role ของผู้ใช้ (ผู้เช่า/ผู้ดูแล)
+export function goHome() {
+    window.location.href = roleHome(currentProfile?.role);
+}
+window.goHome = goHome;
+
 async function init() {
-    const profile = await requireRole('tenant');
+    const profile = await requireRole('tenant', 'admin');
     if (!profile) return;
+    currentProfile = profile;
 
     const { data } = await supabase.auth.getUser();
     currentEmail = data?.user?.email ?? null;
