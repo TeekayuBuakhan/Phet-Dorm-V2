@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<!--
+    หน้าเปลี่ยนทาง (redirect) สำหรับลิงก์เก่า
+    หน้า "แก้ไขข้อมูลส่วนตัว" ถูกย้ายไปอยู่ที่ Login/Profile.html แล้ว (ใช้ร่วมกันทั้งผู้เช่าและผู้ดูแล)
+    ไฟล์นี้มีไว้เพื่อไม่ให้ลิงก์เก่าที่ชี้มาที่ Tenant/Profile.html ขึ้น 404
+-->
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กำลังไปหน้าข้อมูลส่วนตัว...</title>
+    <meta http-equiv="refresh" content="0; url=../Login/Profile.html">
+    <script>window.location.replace('../Login/Profile.html');</script>
+</head>
+<body class="bg-[#F4F5F7] min-h-screen flex items-center justify-center font-sans text-gray-500">
+    <p>กำลังไปหน้าแก้ไขข้อมูลส่วนตัว... <a href="../Login/Profile.html" class="text-[#D35400] underline">คลิกที่นี่ถ้าไม่ไปอัตโนมัติ</a></p>
+</body>
+</html>

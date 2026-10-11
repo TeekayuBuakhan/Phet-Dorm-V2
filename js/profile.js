@@ -10,20 +10,29 @@ const emailLabel = document.getElementById('display-email');
 const phoneLabel = document.getElementById('display-phone');
 const saveBtn = document.getElementById('saveBtn');
 
+let currentProfile = null;
+
 async function renderProfile() {
     // บังคับล็อกอินก่อน แล้วค่อยอ่านข้อมูล
     const profile = await requireRole('tenant', 'admin');
     if (!profile) return;
+    currentProfile = profile;
 
     nameLabel.textContent = profile.full_name || '-';
     emailLabel.textContent = profile.email || '-';
     phoneLabel.textContent = profile.phone_number || '-';
 }
 
+// ปุ่มโลโก้มุมซ้ายให้กลับหน้าหลักตาม role ของผู้ใช้ (ผู้เช่า/ผู้ดูแล)
+export function goHome() {
+    window.location.href = roleHome(currentProfile?.role);
+}
+window.goHome = goHome;
+
 // หน้านี้ไม่มีช่องให้แก้ไข ปุ่มบันทึกจึงแค่กลับไปหน้าหลัง
 saveBtn?.addEventListener('click', async () => {
     const profile = await getMyProfile();
-    window.location.href = profile ? roleHome(profile.role) : 'Main_Tenant.html';
+    window.location.href = profile ? roleHome(profile.role) : roleHome('tenant');
 });
 
 renderProfile().catch((error) => {
