@@ -215,8 +215,7 @@ create trigger report_status_changed_notify
   for each row
   when (old.report_status is distinct from new.report_status and new.report_status <> 'ยังไม่ได้รับเรื่อง')
   execute function public.notify_on_report_status_changed();
-
--- 4. เปิด Realtime ของตาราง notification (ถ้ามี publication) ----------------
+  
 do $$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then

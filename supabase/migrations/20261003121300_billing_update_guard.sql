@@ -40,8 +40,6 @@ create trigger billing_update_guard
   before update on public.billing
   for each row execute function public.guard_billing_update();
 
--- กันบิลของห้องเดียวกันในเดือนเดียวกันซ้ำ
--- ถ้ามีข้อมูลซ้ำอยู่แล้วจะหยุดและบอกรายละเอียด ไม่ลบข้อมูลให้อัตโนมัติ
 do $$
 declare
   duplicated text;

@@ -44,7 +44,7 @@ begin
   end if;
 
   -- instance_id ของโปรเจกต์ที่โฮสต์โดย Supabase เป็นค่านี้
-  -- ถ้ามีผู้ใช้อยู่แล้วให้ยึดค่าจากผู้ใช้คนแรกที่มีอยู่
+  -- ถ้ามีผู้ใช้อยู่แล้วให้ยึดค่าจากผู้ใช้คนแรกที่มีอยู่ห
   select coalesce(
     (select instance_id from auth.users where instance_id is not null limit 1),
     '00000000-0000-0000-0000-000000000000'::uuid
