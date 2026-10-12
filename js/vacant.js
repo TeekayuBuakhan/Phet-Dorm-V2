@@ -1,7 +1,7 @@
 // ดึงข้อมูลห้องที่ว่างจาก Supabase แล้ววาดการ์ดลงใน #vacantRoomContainer
 //
-// ข้อมูลมาจาก view public.vacant_rooms (ดู supabase/migrations/20261003120300_vacant_rooms_view.sql)
-// ซึ่งคืนห้องที่ยังไม่มีผู้เช่าผูกอยู่
+// ข้อมูลมาจาก view public.vacant_rooms (ดู supabase/migrations/20261012140000_vacant_rooms_view_tenant_only.sql)
+// ซึ่งคืนห้องที่ยังไม่มีผู้เช่าผูกอยู่ (ไม่มีแถว tenant อ้าง room_number นั้น)
 //
 // room_images เก็บเป็น path ใน Supabase Storage เช่น room-pic001.jpg
 // ต้องประกอบ URL เต็มด้วย getPublicUrl() ที่นี่
