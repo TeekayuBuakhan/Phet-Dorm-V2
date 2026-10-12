@@ -1,6 +1,6 @@
 // หน้าโปรไฟล์ผู้ใช้
 //
-// ดึงข้อมูลจาก public.profiles ของผู้ใช้ที่ล็อกอินอยู่
+// ดึงข้อมูลจาก get_my_profile() ของผู้ใช้ที่ล็อกอินอยู่ (ผู้เช่า = tenant / ผู้ดูแล = admin)
 // ถ้ายังไม่ได้ล็อกอินจะถูกส่งไปหน้าเข้าสู่ระบบ
 
 import { getMyProfile, requireRole, roleHome } from './auth.js';

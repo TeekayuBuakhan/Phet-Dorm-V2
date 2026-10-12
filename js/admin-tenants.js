@@ -15,11 +15,22 @@ const moveInMessage = document.getElementById('moveInMessage');
 const moveOutMessage = document.getElementById('moveOutMessage');
 
 let tenants = [];
+let roomFilter = 'all';
 let moveInTenant = null;
 let moveOutTenant = null;
 
 function normalize(value) {
     return String(value ?? '').trim().toLowerCase();
+}
+
+// เรียงตามเลขห้องแบบตัวอักษร A-Z บัญชีที่ยังไม่มีห้องให้อยู่ล่างสุด
+function sortByRoom(a, b) {
+    const ra = a.room_number;
+    const rb = b.room_number;
+    if (!ra && !rb) return 0;
+    if (!ra) return 1;
+    if (!rb) return -1;
+    return String(ra).localeCompare(String(rb), 'th', { sensitivity: 'base' });
 }
 
 function formatPhone(phone) {
@@ -31,13 +42,13 @@ function formatPhone(phone) {
 async function fetchTenants() {
     const { data, error } = await supabase
         .from('tenant')
-        .select('tenant_id, user_id, full_name, email, phone_number, room_number, profiles(role)')
+        .select('tenant_id, user_id, full_name, email, phone_number, room_number')
         .order('tenant_id');
 
     if (error) throw new Error(friendlyError(error));
 
-    // บัญชีผู้ดูแลก็มีแถวในตาราง tenant จาก trigger แต่ไม่ใช่ผู้เช่า จึงไม่ต้องแสดง
-    return (data ?? []).filter((tenant) => tenant.profiles?.role !== 'admin');
+    // tenant มีเฉพาะผู้เช่า (แอดมินไม่มีแถวใน tenant) จึงแสดงทั้งหมดได้ทันที
+    return data ?? [];
 }
 
 function renderTable() {
@@ -53,9 +64,24 @@ function renderTable() {
         return;
     }
 
-    tenants.forEach((tenant, index) => {
+    const visible = tenants.filter((tenant) => {
+        if (roomFilter === 'with') return Boolean(tenant.room_number);
+        if (roomFilter === 'without') return !tenant.room_number;
+        return true;
+    });
+
+    if (roomFilter !== 'without') visible.sort(sortByRoom);
+
+    if (visible.length === 0) {
+        tbody.innerHTML = '<tr class="border-b border-gray-50"><td colspan="6" class="py-10 text-gray-400">ไม่มีผู้เช่าที่ตรงกับตัวกรอง</td></tr>';
+        return;
+    }
+
+    visible.forEach((tenant, rowIndex) => {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
+
+        const index = tenants.indexOf(tenant);
 
         const roomHtml = tenant.room_number
             ? `<span class="inline-block bg-green-100 text-green-700 font-bold rounded-full px-3 py-1 text-xs border border-green-200">${escapeHtml(tenant.room_number)}</span>`
@@ -72,7 +98,7 @@ function renderTable() {
             </button>`;
 
         tr.innerHTML = `
-            <td class="py-4 px-4 text-gray-400">${index + 1}</td>
+            <td class="py-4 px-4 text-gray-400">${rowIndex + 1}</td>
             <td class="py-4 px-4 font-medium text-gray-800">${escapeHtml(tenant.full_name || '-')}</td>
             <td class="py-4 px-4">${escapeHtml(tenant.email || '-')}</td>
             <td class="py-4 px-4">${escapeHtml(formatPhone(tenant.phone_number))}</td>
@@ -83,6 +109,21 @@ function renderTable() {
     });
 
     filterTable();
+}
+
+function applyRoomFilter() {
+    document.querySelectorAll('.filter-btn').forEach((btn) => {
+        const active = btn.dataset.filter === roomFilter;
+        btn.classList.toggle('bg-phet-orange', active);
+        btn.classList.toggle('text-white', active);
+        btn.classList.toggle('border-phet-orange', active);
+        btn.classList.toggle('shadow-sm', active);
+        btn.classList.toggle('bg-white', !active);
+        btn.classList.toggle('text-gray-500', !active);
+        btn.classList.toggle('border-gray-200', !active);
+        btn.classList.toggle('hover:bg-gray-100', !active);
+        btn.classList.toggle('hover:border-gray-200', !active);
+    });
 }
 
 function filterTable() {
@@ -147,9 +188,9 @@ async function confirmMoveIn() {
     }
 
     const { error } = await supabase
-        .from('profiles')
+        .from('tenant')
         .update({ room_number: roomNumber })
-        .eq('id', moveInTenant.user_id);
+        .eq('user_id', moveInTenant.user_id);
 
     if (error) {
         setMessage(moveInMessage, friendlyError(error));
@@ -186,9 +227,9 @@ async function confirmMoveOut() {
     }
 
     const { error } = await supabase
-        .from('profiles')
+        .from('tenant')
         .update({ room_number: null })
-        .eq('id', moveOutTenant.user_id);
+        .eq('user_id', moveOutTenant.user_id);
 
     if (error) {
         setMessage(moveOutMessage, friendlyError(error));
@@ -233,6 +274,14 @@ tbody.addEventListener('click', (event) => {
 
 searchInput?.addEventListener('keyup', filterTable);
 
+document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        roomFilter = btn.dataset.filter;
+        applyRoomFilter();
+        renderTable();
+    });
+});
+
 // ลบข้อมูลจำลองออกจาก localStorage
 localStorage.removeItem('users');
 localStorage.removeItem('dormRoomsData');
@@ -240,6 +289,8 @@ localStorage.removeItem('dormRoomsData');
 async function init() {
     const allowed = await requireRole('admin');
     if (!allowed) return;
+
+    applyRoomFilter();
 
     try {
         await refresh();

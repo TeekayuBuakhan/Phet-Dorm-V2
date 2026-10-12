@@ -19,9 +19,9 @@ const imagePreviewModal = document.getElementById('imagePreviewModal');
 const previewImage = document.getElementById('previewImage');
 
 let roomRow = null;
-// ผู้เช่าปัจจุบันของห้อง (มาจากตาราง profiles)
+// ผู้เช่าปัจจุบันของห้อง (มาจากตาราง tenant)
 let currentOccupant = null;
-// บัญชีผู้ใช้ทุกคนที่มี role = tenant ใช้ค้นหาในช่องพิมพ์ชื่อ
+// บัญชีผู้เช่าทุกคนที่ยังไม่มีห้อง ใช้ค้นหาในช่องพิมพ์ชื่อ
 let tenantCandidates = [];
 // id ของผู้เช่าที่ถูกเลือกจริงจากรายการค้นหา (null = ยังไม่เลือก/ว่าง)
 let selectedTenantId = null;
@@ -181,7 +181,7 @@ function tenantLabel(tenant) {
 }
 
 function tenantStatus(tenant) {
-    if (currentOccupant && tenant.id === currentOccupant.id) {
+    if (currentOccupant && tenant.user_id === currentOccupant.user_id) {
         return `ผู้เช่าปัจจุบัน (ห้อง ${roomRow.room_number})`;
     }
     return tenant.room_number ? `อยู่ห้อง ${tenant.room_number}` : 'ยังไม่มีห้อง';
@@ -262,7 +262,7 @@ function renderSuggestions(query) {
 }
 
 function selectTenant(tenant) {
-    selectedTenantId = tenant.id;
+    selectedTenantId = tenant.user_id;
     document.getElementById('tenantSearch').value = tenant.full_name || '';
     document.getElementById('tenantPhone').value = tenant.phone_number ?? '';
     setTenantError(null);
@@ -283,7 +283,7 @@ function syncTenantFromInput() {
     }
 
     if (exact) {
-        selectedTenantId = exact.id;
+        selectedTenantId = exact.user_id;
         document.getElementById('tenantPhone').value = exact.phone_number ?? '';
         setTenantError(null);
     } else {
@@ -318,7 +318,7 @@ function fillForm() {
     document.getElementById('additionalInfo').value = roomRow.additional_info ?? '';
     document.getElementById('roomNum').readOnly = true;
 
-    selectedTenantId = currentOccupant?.id ?? null;
+    selectedTenantId = currentOccupant?.user_id ?? null;
     document.getElementById('tenantSearch').value = currentOccupant?.full_name ?? '';
     document.getElementById('tenantPhone').value = currentOccupant?.phone_number ?? '';
     setTenantError(null);
@@ -384,7 +384,7 @@ async function save() {
         return;
     }
 
-    const currentId = currentOccupant?.id ?? null;
+    const currentId = currentOccupant?.user_id ?? null;
     const selectedId = selectedTenantId;
 
     // ถ้าไม่เลือกผู้เช่า แต่ห้องมีผู้เช่าอยู่ ต้องยืนยันก่อนนำผู้เช่าออก
@@ -425,7 +425,7 @@ async function save() {
             removedImagePaths = [];
         }
 
-        // ย้ายเข้า/ย้ายออก: แก้ room_number ของ profiles (trigger จะ sync ไปตาราง tenant ให้เอง)
+        // ย้ายเข้า/ย้ายออก: แก้ room_number ของแถว tenant โดยตรง
         if (selectedId !== currentId) {
             if (currentId) await moveTenant(currentId, null);
             if (selectedId) await moveTenant(selectedId, roomRow.room_number);
@@ -445,9 +445,9 @@ async function moveTenant(userId, roomNumber) {
     if (!userId) throw new Error('ผู้ใช้รายนี้ยังไม่มีบัญชีในระบบ');
 
     const { error } = await supabase
-        .from('profiles')
+        .from('tenant')
         .update({ room_number: roomNumber })
-        .eq('id', userId);
+        .eq('user_id', userId);
 
     if (error) throw new Error(friendlyError(error));
 }
@@ -472,25 +472,24 @@ async function loadRoom() {
 
     roomRow = room;
 
-    // ผู้เช่าปัจจุบันของห้อง (profiles เป็นแหล่งข้อมูลหลัก)
+    // ผู้เช่าปัจจุบันของห้อง (tenant เป็นแหล่งข้อมูลหลัก)
     const { data: occupants, error: occupantError } = await supabase
-        .from('profiles')
-        .select('id, full_name, phone_number, room_number')
+        .from('tenant')
+        .select('user_id, full_name, phone_number, room_number')
         .eq('room_number', roomNumberParam);
     if (occupantError) throw new Error(friendlyError(occupantError));
     currentOccupant = occupants?.[0] ?? null;
 
     // แสดงเฉพาะบัญชีผู้เช่าที่ยังไม่มีห้อง + ผู้เช่าปัจจุบันของห้องนี้
     const { data: tenants, error: tenantsError } = await supabase
-        .from('profiles')
-        .select('id, full_name, phone_number, room_number')
-        .eq('role', 'tenant')
+        .from('tenant')
+        .select('user_id, full_name, phone_number, room_number')
         .is('room_number', null)
         .order('full_name');
     if (tenantsError) throw new Error(friendlyError(tenantsError));
 
     tenantCandidates = tenants ?? [];
-    if (currentOccupant && !tenantCandidates.some((tenant) => tenant.id === currentOccupant.id)) {
+    if (currentOccupant && !tenantCandidates.some((tenant) => tenant.user_id === currentOccupant.user_id)) {
         tenantCandidates.push(currentOccupant);
     }
 

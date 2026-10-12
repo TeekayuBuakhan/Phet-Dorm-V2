@@ -1,7 +1,8 @@
 // โมดูลกลางของระบบล็อกอิน ใช้ร่วมกันทุกหน้า
 //
 // ตัวตนของผู้ใช้คือ "อีเมล" (Supabase Auth ไม่มีช่อง username)
-// เบอร์โมือถือเก็บใน profiles.phone_number และบังคับตอนสมัคร
+// ผู้เช่าอยู่ในตาราง tenant (สร้างอัตโนมัติตอนสมัคร) ผู้ดูแลอยู่ในตาราง admin
+// เบอร์โมือถือเก็บใน tenant.phone_number และบังคับตอนสมัคร
 //
 // ทุกฟังก์ชันที่เรียก supabase จะโยน Error ที่อ่านเข้าใจได้แล้ว
 // เพื่อให้หน้าเว็บเอาไปแสดงผลได้ตรงๆ
@@ -48,7 +49,7 @@ export function friendlyError(error) {
     if (/phone_number is required/i.test(message)) {
         return 'กรุณากรอกเบอร์โมือถือ 10 หลัว';
     }
-    if (/profiles_phone_number_key|profiles_email_key|duplicate key/i.test(message)) {
+    if (/profiles_phone_number_key|profiles_email_key|tenant_phone_number_key|tenant_email_key|duplicate key/i.test(message)) {
         return 'เบอร์โมือถือนี้ถูกใช้สมัครไว้แล้ว';
     }
     if (/row-level security|not authorized/i.test(message)) {
@@ -199,31 +200,15 @@ export async function getSession() {
 }
 
 export async function getMyProfile() {
-    const { data, error } = await supabase.auth.getUser();
+    const { data: user, error } = await supabase.auth.getUser();
     if (error) throw new Error(friendlyError(error));
-    if (!data.user) return null;
+    if (!user.user) return null;
 
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, phone_number, role')
-        .eq('id', data.user.id)
-        .maybeSingle();
+    const { data: profile, error: profileError } = await supabase.rpc('get_my_profile');
 
     if (profileError) throw new Error(friendlyError(profileError));
 
     return profile;
-}
-
-export async function updateMyProfile(patch) {
-    const { data, error } = await supabase
-        .from('profiles')
-        .update(patch)
-        .select('id, email, full_name, phone_number, role')
-        .maybeSingle();
-
-    if (error) throw new Error(friendlyError(error));
-
-    return data;
 }
 
 // ---------- การควบคุมการเข้าหน้า ----------

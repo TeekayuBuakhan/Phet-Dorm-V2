@@ -46,7 +46,7 @@ form.addEventListener('submit', async (event) => {
         const profile = await getMyProfile();
 
         if (!profile) {
-            // ยังไม่มีข้อมูลใน profiles (เช่นผู้ใช้เก่าที่ยังไม่ได้ยืนยันอีเมล)
+            // ยังไม่มีข้อมูลใน tenant/admin (เช่นผู้ใช้เก่าที่ยังไม่ได้ยืนยันอีเมล)
             setMessage(messageBox, 'บัญชีนี้ยังไม่พร้อมใช้งาน กรุณาติดต่อผู้ดูแลหอพัก');
             return;
         }

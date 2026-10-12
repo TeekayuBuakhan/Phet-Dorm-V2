@@ -52,7 +52,7 @@ export function issueOtp(email, purpose) {
         expiresAt: Date.now() + TTL_MINUTES * 60 * 1000,
     }));
 
-    alert(`โหมดทดลอง: ระบบยังไม่ได้ส่งอีเมลจริง\n\n`
+    alert(`From Petch Dorm :\n\n`
         + `รหัส OTP ของ ${email} คือ ${code}\n`
         + `รหัสนี้ใช้ได้ภายใน ${TTL_MINUTES} นาที`);
 
