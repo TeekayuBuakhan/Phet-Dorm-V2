@@ -58,14 +58,12 @@ function renderRooms(container, rooms) {
                     <p><b>ราคา :</b> ${escapeHtml(formatPrice(room.room_price))}</p>
                 </div>
             </div>
-            <div class="w-full bg-[#D35400] py-3 px-6 flex items-center justify-between">
+            <button onclick="gotoPage('Detail_vacant_room.html?room=${encodeURIComponent(room.room_number)}')" class="w-full bg-[#D35400] py-3 px-6 flex items-center justify-between hover:bg-[#b84a00] transition cursor-pointer">
                 <span class="text-white text-lg font-semibold">รายละเอียด</span>
-                <button onclick="gotoPage('Detail_vacant_room.html?room=${encodeURIComponent(room.room_number)}')" class="text-white hover:scale-110 transition">
-                    <svg width="12" height="21" viewBox="0 0 12 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1.5 19.5L10.5 10.5L1.5 1.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </div>
+                <svg width="12" height="21" viewBox="0 0 12 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.5 19.5L10.5 10.5L1.5 1.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         `;
 
         // ถ้าไฟล์ใน Storage ยังไม่มี ให้ใช้รูป default แทน
